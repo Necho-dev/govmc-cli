@@ -13,7 +13,7 @@
 
 独立 ESXi 是主要验收目标。vCenter 路径仍受默认数据中心／主机选择约束，目前不等同于完整的 vCenter 编排产品。
 
-本文说明 **0.1.1 开发版本，尚未发布**。README／PyPI 元数据完善及 `govmc` Skill 重构均归入 [0.1.1](CHANGELOG.zh.md#011)，`0.1.0` 仍为首个已发布版本。
+本文说明 **GoVMC 0.1.1**。README／PyPI 元数据完善及 `govmc` Skill 重构均归入 [0.1.1](CHANGELOG.zh.md#011)，`0.1.0` 仍为首个已发布版本。
 
 <p align="center">
   <img src="assets/demos/cli.gif" alt="GoVMC CLI 命令切换演示" width="1100">
@@ -63,7 +63,7 @@ make build
 
 ## 安装与分发
 
-项目仓库和 PyPI 包名均为 **`govmc-cli`**，安装后的命令为 **`govmc`**。当前源码版本为 `0.1.1`，尚未发布到 PyPI，也未创建 GitHub 发行标签。下列不指定版本的安装命令目前获取已发布版本；使用本轮 0.1.1 改动请从当前源码构建。
+项目仓库和 PyPI 包名均为 **`govmc-cli`**，安装后的命令为 **`govmc`**。`0.1.1` 提供原生 GitHub 发布制品和 Python 平台 wheel，可按下列方式安装发行版或从当前源码构建。
 
 ### Python：pipx 或 pip
 
@@ -83,14 +83,14 @@ python -m pip install govmc-cli
 govmc --version
 ```
 
-0.1.1 发布后可指定版本：`python -m pip install govmc-cli==0.1.1`。升级：`pipx upgrade govmc-cli` 或 `python -m pip install --upgrade govmc-cli`。
+指定 0.1.1 版本：`python -m pip install govmc-cli==0.1.1`。升级：`pipx upgrade govmc-cli` 或 `python -m pip install --upgrade govmc-cli`。
 
 ### Go：安装或构建
 
 编译需要 **Go 1.25+**。也可以从 [GitHub Releases](https://github.com/Necho-dev/govmc-cli/releases) 下载对应平台 ZIP，解压后将 `govmc`（Windows 为 `govmc.exe`）加入 `PATH`，运行时不需要 Go 或 Python。
 
 ```sh
-# v0.1.1 创建标签并发布后，安装到 $(go env GOPATH)/bin：
+# 将 v0.1.1 安装到 $(go env GOPATH)/bin：
 go install github.com/Necho-dev/govmc-cli/cmd/govmc@v0.1.1
 # 或安装最新已发布版本：
 go install github.com/Necho-dev/govmc-cli/cmd/govmc@latest

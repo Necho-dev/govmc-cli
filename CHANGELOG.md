@@ -6,7 +6,7 @@ Versions follow [SemVer](https://semver.org/). English and Chinese entries share
 
 ## [Unreleased]
 
-## [0.1.1]
+## [0.1.1] - 2026-11-26
 
 ### Changed
 
@@ -25,7 +25,7 @@ Versions follow [SemVer](https://semver.org/). English and Chinese entries share
 - Verify native/wheel installation parity, including the `govmc` Skill entrypoint, UI metadata and task-specific references. Distribution tests can also accept an already published wheel.
 - Compare installed Skill contents as original UTF-8 bytes and accept LF/CRLF example fences, preventing false failures on Windows. Windows CI covers Skill installation, documented commands and wheel behavior.
 - Stabilize the TUI scroll-and-return regression by waiting for the final row without a backlog of key events.
-- Run local published-package/WMKS lifecycle checks, Go race/simulator regressions, Linux/Windows CI and browser interaction regressions during 0.1.1 preparation. This validation does not publish a release.
+- Run local published-package/WMKS lifecycle checks, Go race/simulator regressions, Linux/Windows CI and browser interaction regressions during 0.1.1 preparation.
 
 ## [0.1.0]
 
