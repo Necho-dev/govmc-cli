@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Necho-dev/govmc-cli/internal/privatefile"
 	"github.com/gofrs/flock"
 )
 
@@ -28,8 +29,8 @@ func encryptionKey(configPath string, create bool) ([]byte, error) {
 		if err != nil {
 			return nil, err
 		}
-		if !info.Mode().IsRegular() || info.Mode().Perm()&0077 != 0 {
-			return nil, errors.New("credential key must be a regular file accessible only by its owner (mode 0600)")
+		if err := privatefile.Check(path); err != nil {
+			return nil, fmt.Errorf("credential key: %w", err)
 		}
 		if info.Size() != 32 {
 			return nil, errors.New("invalid credential key; restore the original config.key")
@@ -157,6 +158,10 @@ func atomicPrivateWrite(path string, data []byte) error {
 		return err
 	}
 	defer os.Remove(f.Name())
+	if err := privatefile.Protect(f.Name()); err != nil {
+		f.Close()
+		return err
+	}
 	_, writeErr := f.Write(data)
 	syncErr := f.Sync()
 	closeErr := f.Close()
@@ -166,10 +171,5 @@ func atomicPrivateWrite(path string, data []byte) error {
 	if err := os.Rename(f.Name(), path); err != nil {
 		return err
 	}
-	directory, err := os.Open(filepath.Dir(path))
-	if err != nil {
-		return err
-	}
-	defer directory.Close()
-	return directory.Sync()
+	return privatefile.SyncDirectory(filepath.Dir(path))
 }

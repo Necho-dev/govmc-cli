@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"github.com/Necho-dev/govmc-cli/internal/privatefile"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,8 +42,7 @@ func TestEncryptedProfilesSurviveEnvironmentAndEndpointChanges(t *testing.T) {
 		t.Fatal("configuration is not encrypted YAML")
 	}
 	for _, name := range []string{path, keyPath(path)} {
-		info, err := os.Stat(name)
-		if err != nil || info.Mode().Perm() != 0600 {
+		if err := privatefile.Check(name); err != nil {
 			t.Fatal("private file permissions not enforced")
 		}
 	}
@@ -108,7 +108,7 @@ func TestMissingOrInsecureKeyDoesNotRegenerate(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.Chmod(keyPath(path), 0644); err != nil {
+	if err := makeKeyShared(keyPath(path)); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := Named(path, "lab"); err == nil {
@@ -128,6 +128,9 @@ func TestMissingOrInsecureKeyDoesNotRegenerate(t *testing.T) {
 		t.Fatal("key regenerated")
 	}
 	if err := os.WriteFile(keyPath(path), key, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := privatefile.Protect(keyPath(path)); err != nil {
 		t.Fatal(err)
 	}
 	original, err := Named(path, "lab")

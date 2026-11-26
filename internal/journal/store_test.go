@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Necho-dev/govmc-cli/internal/privatefile"
 	"github.com/gofrs/flock"
 )
 
@@ -76,8 +77,7 @@ func TestAuditPersistenceAndMetadataOnly(t *testing.T) {
 	if err != nil || len(persisted.Items) != 1 {
 		t.Fatal("second process cannot query durable audit")
 	}
-	info, _ := os.Stat(filepath.Join(filepath.Dir(p), "data.db"))
-	if info.Mode().Perm() != 0600 {
+	if err := privatefile.Check(filepath.Join(filepath.Dir(p), "data.db")); err != nil {
 		t.Fatal("database permissions")
 	}
 }

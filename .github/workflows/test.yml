@@ -33,3 +33,19 @@ jobs:
           npm install --global @playwright/cli
           npx playwright install --with-deps chrome
           make web-smoke PWCLI=playwright-cli
+
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test ./internal/privatefile ./internal/target -v -run "TestProtectedFile|TestSharedFileRejected|TestEncryptedProfilesSurviveEnvironmentAndEndpointChanges|TestMissingOrInsecureKeyDoesNotRegenerate"
+      - run: go build -o bin/govmc.exe ./cmd/govmc
+      - shell: bash
+        run: |
+          config_path="$RUNNER_TEMP/profile/config.yaml"
+          printf '%s\n' 'fixture-only' | ./bin/govmc.exe --config "$config_path" profiles add ci --url https://127.0.0.1 --username ci --password-stdin
+          ./bin/govmc.exe --config "$config_path" profiles list --json
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize"}' | ./bin/govmc.exe --config "$config_path" --profile ci mcp serve | grep protocolVersion
