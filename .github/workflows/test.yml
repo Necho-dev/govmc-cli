@@ -38,6 +38,9 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -49,3 +52,7 @@ jobs:
           printf '%s\n' 'fixture-only' | ./bin/govmc.exe --config "$config_path" profiles add ci --url https://127.0.0.1 --username ci --password-stdin
           ./bin/govmc.exe --config "$config_path" profiles list --json
           printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize"}' | ./bin/govmc.exe --config "$config_path" --profile ci mcp serve | grep protocolVersion
+      - name: Verify installed Windows wheel and UTF-8 Skill output
+        run: python -m unittest discover -s tests/packaging -v
+        env:
+          GOVMC_PACKAGED_BINARY: ${{ github.workspace }}/bin/govmc.exe

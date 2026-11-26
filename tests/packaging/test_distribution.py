@@ -27,7 +27,7 @@ class DistributionTest(unittest.TestCase):
     self.assertEqual(bundle.read("LICENSE"),(ROOT/"LICENSE").read_bytes())
   sdk=ROOT/'web/wmks/wmks.min.js'
   if sdk.is_file() and sdk.stat().st_size>256:self.assertNotIn(sdk.read_bytes()[:256],native.read_bytes())
-  version=subprocess.check_output([str(native),'--version'],text=True).strip().split()[-1]
+  version=subprocess.check_output([str(native),'--version'],text=True,encoding="utf-8").strip().split()[-1]
   with tempfile.TemporaryDirectory(prefix='govmc-cli-distribution-') as d:
    work=Path(d);wheels=work/'wheels'
    subprocess.run([sys.executable,str(ROOT/'build/wheel.py'),'--version',version,'--binary',str(native),'--out',str(wheels)],check=True,cwd=work)
@@ -44,7 +44,7 @@ class DistributionTest(unittest.TestCase):
    environment=work/'venv';venv.EnvBuilder(with_pip=True).create(environment);bindir=environment/('Scripts' if os.name=='nt' else 'bin')
    subprocess.run([str(bindir/('python.exe' if os.name=='nt' else 'python')),'-m','pip','install','--no-index','--no-deps','--no-cache-dir',str(wheel)],check=True,cwd=work,stdout=subprocess.DEVNULL)
    launcher=bindir/('govmc.exe' if os.name=='nt' else 'govmc');home=work/'home';home.mkdir();env={**os.environ,'GOVMC_CONFIG':'','GOVMC_WEB_DIR':'','HOME':str(home),'USERPROFILE':str(home)}
-   def run(binary,*args,input=None):return subprocess.run([str(binary),'--config',str(work/'state/config.yaml'),*args],input=input,text=True,capture_output=True,check=True,cwd=work,env=env).stdout
+   def run(binary,*args,input=None):return subprocess.run([str(binary),'--config',str(work/'state/config.yaml'),*args],input=input,text=True,encoding="utf-8",capture_output=True,check=True,cwd=work,env=env).stdout
    self.assertEqual(run(native,'--version'),run(launcher,'--version'))
    self.assertEqual(json.loads(run(native,'wmks','status','--json'))['state'],'missing')
    package=work/'SDK.zip'
@@ -63,6 +63,6 @@ class DistributionTest(unittest.TestCase):
    if os.environ.get('GOVMC_PACKAGE_SERVE_TEST')=='1':
     for binary in [native,launcher]:
      print('Full serve lifecycle:',binary,flush=True)
-     subprocess.run(['go','test','-race','-count=1','-timeout','120s','-run','^TestBuiltServeWMKSFullLifecycle$','-v','./internal/command'],cwd=ROOT,env={**env,'GOVMC_SERVE_BINARY':str(binary),'GOMODCACHE':subprocess.check_output(['go','env','GOMODCACHE'],cwd=ROOT,text=True).strip()},check=True)
+     subprocess.run(['go','test','-race','-count=1','-timeout','120s','-run','^TestBuiltServeWMKSFullLifecycle$','-v','./internal/command'],cwd=ROOT,env={**env,'GOVMC_SERVE_BINARY':str(binary),'GOMODCACHE':subprocess.check_output(['go','env','GOMODCACHE'],cwd=ROOT,text=True,encoding="utf-8").strip()},check=True)
    run(launcher,'wmks','uninstall','--yes');self.assertEqual(json.loads(run(native,'wmks','status','--json'))['state'],'missing')
 if __name__=='__main__':unittest.main()
