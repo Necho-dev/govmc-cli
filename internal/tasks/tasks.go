@@ -435,8 +435,12 @@ func (m *Manager) execute(j job) {
 	r := &Reporter{manager: m, task: t, stop: cancel, store: j.store}
 	defer cancel()
 	done := make(chan struct{})
-	defer close(done)
+	stopped := make(chan struct{})
+	stopObserver := sync.OnceFunc(func() { close(done); <-stopped })
+	defer stopObserver()
+	taskID := t.ID
 	go func() {
+		defer close(stopped)
 		ticker := time.NewTicker(300 * time.Millisecond)
 		defer ticker.Stop()
 		for {
@@ -446,7 +450,7 @@ func (m *Manager) execute(j job) {
 			case <-ctx.Done():
 				return
 			case <-ticker.C:
-				latest, e := m.Get(t.ID)
+				latest, e := m.Get(taskID)
 				if e == nil && latest.CancelRequested {
 					r.mu.Lock()
 					r.task.CancelRequested = true
@@ -460,6 +464,9 @@ func (m *Manager) execute(j job) {
 		}
 	}()
 	result, err := j.run(ctx, r)
+	// Finalization owns the last persisted state. Join the observer before
+	// copying its state; it must neither race with nor overwrite completion.
+	stopObserver()
 	r.mu.Lock()
 	if err == nil && r.failure != nil {
 		err = r.failure

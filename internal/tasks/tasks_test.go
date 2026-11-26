@@ -172,3 +172,26 @@ func TestNestedSourceDestinationLocksAndExpiredOwner(t *testing.T) {
 	}
 	waitState(t, b, dead.ID, "interrupted")
 }
+
+func TestTaskFinalizationStopsCancellationObserver(t *testing.T) {
+	m := manager(t, filepath.Join(t.TempDir(), "config.yaml"))
+	job, err := m.Submit(context.Background(), "lab", "https://host", "file.copy", "observer", nil, "observer", "", func(ctx context.Context, r *Reporter) (any, error) {
+		timer := time.NewTimer(350 * time.Millisecond)
+		defer timer.Stop()
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-timer.C:
+			return "done", nil
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	waitState(t, m, job.ID, "succeeded")
+	time.Sleep(350 * time.Millisecond)
+	final, err := m.Get(job.ID)
+	if err != nil || final.Status != "succeeded" || final.EndedAt == nil {
+		t.Fatalf("observer overwrote final state: %+v %v", final, err)
+	}
+}
