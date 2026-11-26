@@ -17,7 +17,7 @@ func TestSkillMCPExamplesMatchCatalog(t *testing.T) {
 	for _, tool := range allowedTools(true) {
 		catalog[tool["name"].(string)] = tool["inputSchema"].(map[string]any)
 	}
-	fences := regexp.MustCompile("(?s)```json\\n(.*?)\\n```")
+	fences := regexp.MustCompile("(?s)```json\\r?\\n(.*?)\\r?\\n```")
 	examples := 0
 	err := fs.WalkDir(skillassets.Skill, skillassets.SkillPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") {

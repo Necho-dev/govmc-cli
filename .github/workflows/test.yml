@@ -46,6 +46,8 @@ jobs:
           go-version-file: go.mod
       - run: go test ./internal/privatefile ./internal/target ./internal/journal -v -run "TestDatabaseURLDoesNotUsePathAsHost|TestProtectedFile|TestSharedFileRejected|TestEncryptedProfilesSurviveEnvironmentAndEndpointChanges|TestMissingOrInsecureKeyDoesNotRegenerate"
       - run: go build -o bin/govmc.exe ./cmd/govmc
+      - name: Verify embedded Skill installation and documented commands
+        run: go test ./internal/command ./internal/mcp -run "TestEmbeddedSkill|TestSkill" -count=1 -v
       - shell: bash
         run: |
           config_path="$RUNNER_TEMP/profile/config.yaml"

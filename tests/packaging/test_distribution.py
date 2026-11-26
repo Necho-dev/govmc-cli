@@ -67,7 +67,7 @@ class DistributionTest(unittest.TestCase):
     skill=home/'.agents/skills/govmc'
     for resource in ('agents/openai.yaml','references/setup.md','references/tasks.md','references/datastores.md','references/clone_workflow.md','references/remote_control.md','references/web_console.md'):
      self.assertTrue((skill/resource).is_file(),resource)
-    entry=json.loads(run(binary,'skill','show','--json'));self.assertEqual(entry['name'],'govmc');self.assertEqual((skill/'SKILL.md').read_text(encoding='utf-8'),entry['content'])
+    entry=json.loads(run(binary,'skill','show','--json'));self.assertEqual(entry['name'],'govmc');self.assertEqual((skill/'SKILL.md').read_bytes(),entry['content'].encode('utf-8'))
     self.assertIn('protocolVersion',run(binary,'mcp','serve',input='{"jsonrpc":"2.0","id":1,"method":"initialize"}\n'))
    if os.environ.get('GOVMC_PACKAGE_SERVE_TEST')=='1':
     for binary in [native,launcher]:

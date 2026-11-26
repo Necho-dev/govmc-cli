@@ -113,7 +113,8 @@ func TestEmbeddedSkillInstallIsSelfContained(t *testing.T) {
 // Validate the documented command paths and flags without executing any command
 // or opening a profile. This catches drift while preserving the safety of examples.
 func TestSkillCLIExamplesMatchCommands(t *testing.T) {
-	fences := regexp.MustCompile("(?s)```(?:sh|bash)\\n(.*?)\\n```")
+	fences := regexp.MustCompile("(?s)```(?:sh|bash)\\r?\\n(.*?)\\r?\\n```")
+	examples := 0
 	err := fs.WalkDir(skillassets.Skill, skillPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") {
 			return err
@@ -128,6 +129,7 @@ func TestSkillCLIExamplesMatchCommands(t *testing.T) {
 				if len(fields) == 0 || fields[0] != "govmc" {
 					continue
 				}
+				examples++
 				root := New()
 				cmd, args, err := root.Find(fields[1:])
 				if err != nil {
@@ -144,5 +146,8 @@ func TestSkillCLIExamplesMatchCommands(t *testing.T) {
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if examples == 0 {
+		t.Fatal("no CLI examples found in the embedded Skill")
 	}
 }
