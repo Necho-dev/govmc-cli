@@ -10,16 +10,22 @@ Versions follow [SemVer](https://semver.org/). English and Chinese entries share
 
 ### Changed
 
-- Unify the embedded Skill name, installation paths, UI metadata and documentation as `govmc`; route detailed setup, task, datastore and clone procedures through on-demand references.
+- Standardize the bundled Skill identifier, source and installation directories, CLI help, UI metadata, translations and README links as `govmc`.
+- Reduce the Skill entrypoint to essential operating boundaries and a task router; load nine focused references only as needed. Setup/permissions, Tasks/logs/audits and datastore operations have dedicated references.
+- Document complete CLI/stdio MCP clone and transfer workflows: inspect, preview, confirm, follow the persistent task and verify the result. Remove fixed legacy clone specifications; inherit the source configuration unless the user requests overrides.
+- Clarify Skill upgrades and installation paths for Codex, Cursor and Claude Code. Updating an executable does not replace an installed Skill; replacing it is explicit and other Skill directories are left intact. MCP tool names continue to follow the actual server schema.
 
 ### Fixed
 
-- Python wheels include the complete README as the PyPI description, with release-pinned image and documentation URLs.
+- Include the complete README in Python wheel metadata for the PyPI description, with image and documentation URLs pinned to the matching release tag.
 
 ### Validation
 
-- Distribution regression tests accept an already published wheel, verifying its embedded executable, installation, CLI/MCP/Skill behavior and WMKS lifecycle against the native release.
-- Stabilize TUI scroll-and-return regression coverage by waiting for the final row without a backlog of key events.
+- Validate embedded Skill identity, reference links and installation into all three supported clients; check documented CLI command paths/flags and MCP example names/arguments against the implementation without executing device operations.
+- Verify native/wheel installation parity, including the `govmc` Skill entrypoint, UI metadata and task-specific references. Distribution tests can also accept an already published wheel.
+- Compare installed Skill contents as original UTF-8 bytes and accept LF/CRLF example fences, preventing false failures on Windows. Windows CI covers Skill installation, documented commands and wheel behavior.
+- Stabilize the TUI scroll-and-return regression by waiting for the final row without a backlog of key events.
+- Run local published-package/WMKS lifecycle checks, Go race/simulator regressions, Linux/Windows CI and browser interaction regressions during 0.1.1 preparation. This validation does not publish a release.
 
 ## [0.1.0]
 

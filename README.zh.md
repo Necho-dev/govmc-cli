@@ -13,6 +13,8 @@
 
 独立 ESXi 是主要验收目标。vCenter 路径仍受默认数据中心／主机选择约束，目前不等同于完整的 vCenter 编排产品。
 
+本文说明 **0.1.1 开发版本，尚未发布**。README／PyPI 元数据完善及 `govmc` Skill 重构均归入 [0.1.1](CHANGELOG.zh.md#011)，`0.1.0` 仍为首个已发布版本。
+
 <p align="center">
   <img src="assets/demos/cli.gif" alt="GoVMC CLI 命令切换演示" width="1100">
 </p>
@@ -61,7 +63,7 @@ make build
 
 ## 安装与分发
 
-项目仓库和 PyPI 包名均为 **`govmc-cli`**，安装后的命令为 **`govmc`**。首个版本为 `0.1.0`，可按下列方式从 PyPI、GitHub 发布制品安装，或从源码构建。
+项目仓库和 PyPI 包名均为 **`govmc-cli`**，安装后的命令为 **`govmc`**。当前源码版本为 `0.1.1`，尚未发布到 PyPI，也未创建 GitHub 发行标签。下列不指定版本的安装命令目前获取已发布版本；使用本轮 0.1.1 改动请从当前源码构建。
 
 ### Python：pipx 或 pip
 
@@ -81,15 +83,15 @@ python -m pip install govmc-cli
 govmc --version
 ```
 
-指定版本：`python -m pip install govmc-cli==0.1.0`。升级：`pipx upgrade govmc-cli` 或 `python -m pip install --upgrade govmc-cli`。
+0.1.1 发布后可指定版本：`python -m pip install govmc-cli==0.1.1`。升级：`pipx upgrade govmc-cli` 或 `python -m pip install --upgrade govmc-cli`。
 
 ### Go：安装或构建
 
 编译需要 **Go 1.25+**。也可以从 [GitHub Releases](https://github.com/Necho-dev/govmc-cli/releases) 下载对应平台 ZIP，解压后将 `govmc`（Windows 为 `govmc.exe`）加入 `PATH`，运行时不需要 Go 或 Python。
 
 ```sh
-# 将已发布版本安装到 $(go env GOPATH)/bin：
-go install github.com/Necho-dev/govmc-cli/cmd/govmc@v0.1.0
+# v0.1.1 创建标签并发布后，安装到 $(go env GOPATH)/bin：
+go install github.com/Necho-dev/govmc-cli/cmd/govmc@v0.1.1
 # 或安装最新已发布版本：
 go install github.com/Necho-dev/govmc-cli/cmd/govmc@latest
 
@@ -365,9 +367,9 @@ govmc config set --mcp-mode readonly
 
 写操作还需要 `confirm: true`，克隆／复制／移动预览在只读模式下可用。工具的单次 `profile` 参数优先于进程默认环境，不修改 `active`；`govmc --profile lab mcp serve` 只固定默认目标。本地任务／日志／审计查询不要求连接 ESXi。工具并非与所有 CLI 命令逐项等同，例如配置编辑目前由 CLI/TUI/Web 提供，没有通用 MCP 编辑工具。
 
-内置 `govmc` Skill 可离线安装，兼容 CLI 和 stdio MCP。入口按需路由到环境、清单、任务／审计、存储、克隆、配置、远控、WMKS 与排障文档，仅加载当前任务需要的内容，说明选择、预览、确认和验收流程；克隆核心由共用 Go 编排实现，并非只能依赖 Skill 脚本。CLI/MCP 操作流程见 [Skill](skills/govmc/SKILL.md)。REST 契约通过 `GET /v1/openapi.yaml` 查询，源码见 [openapi.yaml](internal/httpserver/openapi.yaml)。
+**0.1.1** 将内置 Skill 名称与安装目录统一为 `govmc`，可离线安装，兼容 CLI 和 stdio MCP。入口按需路由到环境、清单、任务／审计、存储、克隆、配置、远控、WMKS 与排障文档，仅加载当前任务需要的内容，说明选择、预览、确认和验收流程；克隆核心由共用 Go 编排实现，并非只能依赖 Skill 脚本。CLI/MCP 操作流程见 [Skill](skills/govmc/SKILL.md)。REST 契约通过 `GET /v1/openapi.yaml` 查询，源码见 [openapi.yaml](internal/httpserver/openapi.yaml)。
 
-安装目录分别为 `~/.agents/skills/govmc`（Codex）、`~/.cursor/skills/govmc`（Cursor）和 `~/.claude/skills/govmc`（Claude Code）。升级程序后执行 `govmc skill install --client CLIENT --force` 替换已安装版本，先保留需要的本地修改。旧版本以其他 Skill 名称安装的目录不会被自动删除。
+安装目录分别为 `~/.agents/skills/govmc`（Codex）、`~/.cursor/skills/govmc`（Cursor）和 `~/.claude/skills/govmc`（Claude Code）。升级程序后执行 `govmc skill install --client CLIENT --force` 替换已安装版本，先保留需要的本地修改。旧版本以其他 Skill 名称安装的目录不会被自动删除。环境与权限选择见[环境参考](skills/govmc/references/setup.md)，跨端记录跟踪见[任务参考](skills/govmc/references/tasks.md)，文件传输计划见[存储参考](skills/govmc/references/datastores.md)；本地历史查询不要求 ESXi 在线。
 
 ## 日志、审计与语言
 
@@ -426,7 +428,7 @@ make wheel VERSION=0.1.1
 
 首次发布前，先到 [GitHub Settings → Environments](https://github.com/Necho-dev/govmc-cli/settings/environments) 创建名称严格为 `pypi` 的环境，再在 PyPI 配置对应仓库、工作流 `publish.yml`、environment `pypi` 的 Trusted Publisher（[官方说明](https://docs.pypi.org/trusted-publishers/using-a-publisher/)），若编辑器提示 `Value 'pypi' is not valid`，检查新仓库是否已有此环境，再刷新／重载 GitHub Actions 扩展；`pypi` 本身是合法的工作流环境名。无需配置 PyPI API Token。制品不携带 VMware WMKS。Linux arm64、macOS amd64 使用交叉编译；Linux amd64、macOS arm64、Windows amd64 在对应 runner 上验证原生程序与 wheel 的运行及安装流程。
 
-复用原生制品可运行 `python3 build/wheel.py --version VERSION --binary dist/govmc`（Windows 使用 `dist/govmc.exe`），版本与平台应保持一致。构建辅助脚本只使用 Python 标准库，产品本身仍是 Go 可执行程序。wheel 使用完整英文 README 作为 PyPI 项目介绍，其中图片和文档的相对链接会转换为指向对应发行标签的完整地址。
+复用原生制品可运行 `python3 build/wheel.py --version VERSION --binary dist/govmc`（Windows 使用 `dist/govmc.exe`），版本与平台应保持一致。构建辅助脚本只使用 Python 标准库，产品本身仍是 Go 可执行程序。从 0.1.1 开始，wheel 使用完整英文 README 作为 PyPI 项目介绍，其中图片和文档的相对链接会转换为指向对应发行标签的完整地址。
 
 ## 鸣谢
 

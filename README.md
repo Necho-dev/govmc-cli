@@ -11,6 +11,8 @@
 
 ESXi management through a native Go **CLI**, full-screen **TUI**, **stdio MCP**, and **Web workspace**. All entry points share inventory services, configuration, task history, and operation audits. The executable is `govmc`; the Go module is `github.com/Necho-dev/govmc-cli`. The Python distribution is also `govmc-cli`.
 
+This README describes the **0.1.1 development version, not yet released**. The README/PyPI metadata improvements and `govmc` Skill reorganization belong to [0.1.1](CHANGELOG.md#011); `0.1.0` remains the first published release.
+
 Standalone ESXi is the primary acceptance target. vCenter support remains constrained by the default datacenter/host selection; this is not a complete vCenter orchestration product.
 
 <p align="center">
@@ -61,7 +63,7 @@ Profile creation prompts for the password without echoing it. New profiles verif
 
 ## Installation and distribution
 
-The package/repository name is **`govmc-cli`**; the installed command is **`govmc`**. The first release is `0.1.0`. Install from PyPI, GitHub release artifacts, or build from source as shown below.
+The package/repository name is **`govmc-cli`**; the installed command is **`govmc`**. The current source version is `0.1.1`; it has not been published to PyPI or tagged as a GitHub release. Unpinned installation commands currently install the published release; build from this checkout to use the 0.1.1 changes.
 
 ### Python: pipx or pip
 
@@ -81,15 +83,15 @@ python -m pip install govmc-cli
 govmc --version
 ```
 
-Pin a release with `python -m pip install govmc-cli==0.1.0`; upgrade with `pipx upgrade govmc-cli` or `python -m pip install --upgrade govmc-cli`.
+After 0.1.1 is published, pin it with `python -m pip install govmc-cli==0.1.1`; upgrade with `pipx upgrade govmc-cli` or `python -m pip install --upgrade govmc-cli`.
 
 ### Go: install or build
 
 Requires Go **1.25+** to compile. A prebuilt binary from [GitHub Releases](https://github.com/Necho-dev/govmc-cli/releases) requires neither Go nor Python: unpack the matching ZIP and place `govmc` (`govmc.exe` on Windows) on `PATH`.
 
 ```sh
-# Build/install a published version into $(go env GOPATH)/bin:
-go install github.com/Necho-dev/govmc-cli/cmd/govmc@v0.1.0
+# After v0.1.1 is tagged/published, install it into $(go env GOPATH)/bin:
+go install github.com/Necho-dev/govmc-cli/cmd/govmc@v0.1.1
 # Or track the latest published release:
 go install github.com/Necho-dev/govmc-cli/cmd/govmc@latest
 
@@ -366,9 +368,9 @@ govmc config set --mcp-mode readonly
 
 Writes also require `confirm: true`. Clone/copy/move previews remain available in read-only mode. MCP tools accept a per-call `profile`, overriding the process default without changing `active`; `govmc --profile lab mcp serve` pins only the default. Local task/log/audit queries do not require an ESXi connection. Tool availability is not identical to every CLI command: for example, VM configuration editing is currently exposed through CLI/TUI/Web, not a general MCP edit tool.
 
-The bundled `govmc` Skill installs offline and supports CLI and stdio MCP. Its entrypoint routes to task-specific references for setup, inventory, tasks/audits, datastores, cloning, VM configuration, remote control, WMKS and troubleshooting; load only the references needed for the current request. It explains selection, preview, confirmation, and verification; cloning itself is a shared Go workflow, not a Skill-only script. See the [Skill](skills/govmc/SKILL.md) for CLI/MCP workflows. The REST contract is available at `GET /v1/openapi.yaml` and in [openapi.yaml](internal/httpserver/openapi.yaml).
+In **0.1.1**, the bundled Skill name and installation directory are unified as `govmc`. It installs offline and supports CLI and stdio MCP. Its entrypoint routes to task-specific references for setup, inventory, tasks/audits, datastores, cloning, VM configuration, remote control, WMKS and troubleshooting; load only the references needed for the current request. It explains selection, preview, confirmation, and verification; cloning itself is a shared Go workflow, not a Skill-only script. See the [Skill](skills/govmc/SKILL.md) for CLI/MCP workflows. The REST contract is available at `GET /v1/openapi.yaml` and in [openapi.yaml](internal/httpserver/openapi.yaml).
 
-Install to `~/.agents/skills/govmc` (Codex), `~/.cursor/skills/govmc` (Cursor), or `~/.claude/skills/govmc` (Claude Code). After upgrading the executable, use `govmc skill install --client CLIENT --force` to replace an existing installation, preserving any local changes first. Older installations under a different Skill name are not removed automatically.
+Install to `~/.agents/skills/govmc` (Codex), `~/.cursor/skills/govmc` (Cursor), or `~/.claude/skills/govmc` (Claude Code). After upgrading the executable, use `govmc skill install --client CLIENT --force` to replace an existing installation, preserving any local changes first. Older installations under a different Skill name are not removed automatically. Use the [setup reference](skills/govmc/references/setup.md) for environment and permission selection, the [task reference](skills/govmc/references/tasks.md) for cross-entry-point tracking, and the [datastore reference](skills/govmc/references/datastores.md) for transfer plans. Local history queries do not require an online ESXi host.
 
 ## Logs, audits, and language
 
@@ -427,7 +429,7 @@ Releases follow the same tag-driven flow as openwrt-cli. Pushing `vX.Y.Z` or `vX
 
 Before the first release, create an environment named exactly `pypi` in [GitHub Settings → Environments](https://github.com/Necho-dev/govmc-cli/settings/environments), then configure a PyPI Trusted Publisher for your repository, workflow `publish.yml`, environment `pypi` ([official setup](https://docs.pypi.org/trusted-publishers/using-a-publisher/)). If the editor reports `Value 'pypi' is not valid`, check that this environment exists in the new repository, then refresh/reload the GitHub Actions extension; the literal environment name is valid workflow syntax. No PyPI API token is needed. The workflow does not bundle VMware WMKS. Linux arm64 and macOS amd64 artifacts are cross-built; executable/wheel lifecycle smoke checks run on Linux amd64, macOS arm64 and Windows amd64 runners.
 
-To reuse an existing native release, run `python3 build/wheel.py --version VERSION --binary dist/govmc` (Windows: `dist/govmc.exe`); its version and target must match the wheel. Packaging helpers use the Python standard library, while the product remains a Go executable. Wheels include this complete README as their PyPI description; relative image and documentation links are converted to URLs pinned to the matching release tag.
+To reuse an existing native release, run `python3 build/wheel.py --version VERSION --binary dist/govmc` (Windows: `dist/govmc.exe`); its version and target must match the wheel. Packaging helpers use the Python standard library, while the product remains a Go executable. Starting with 0.1.1, wheels include this complete README as their PyPI description; relative image and documentation links are converted to URLs pinned to the matching release tag.
 
 ## License and open-source boundary
 
