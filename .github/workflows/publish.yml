@@ -1,0 +1,152 @@
+name: Publish
+on:
+  push:
+    tags: ['v*.*.*']
+permissions:
+  contents: read
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+  preflight:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check tag, PyPI, and bilingual release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+          RELEASE_REPOSITORY: ${{ github.repository }}
+        run: python build/release/preflight.py --tag "$RELEASE_TAG" --repository "$RELEASE_REPOSITORY" --notes release_notes.md --check-pypi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release_notes
+          path: release_notes.md
+  build:
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {runner: ubuntu-latest, target: linux-amd64, smoke: true}
+          - {runner: ubuntu-latest, target: linux-arm64, smoke: false}
+          - {runner: macos-15, target: darwin-arm64, smoke: true}
+          - {runner: ubuntu-latest, target: darwin-amd64, smoke: false}
+          - {runner: windows-2022, target: windows-amd64, smoke: true}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build and verify the native Go release
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          python build/native.py --version "$version" --target "${{ matrix.target }}"
+          binary=dist/govmc
+          if [[ "$RUNNER_OS" == "Windows" ]]; then binary=dist/govmc.exe; fi
+          if [[ "${{ matrix.smoke }}" == "true" ]]; then "$binary" --version; fi
+      - name: Build wheel from the native executable
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          binary=dist/govmc
+          if [[ "$RUNNER_OS" == "Windows" ]]; then binary=dist/govmc.exe; fi
+          python build/wheel.py --version "$version" --target "${{ matrix.target }}" --binary "$binary"
+      - name: Smoke test installed wheel
+        if: matrix.smoke
+        shell: bash
+        run: |
+          cp dist/*.whl "$RUNNER_TEMP/"
+          cd "$RUNNER_TEMP"
+          python -m pip install --no-index --no-deps ./*.whl
+          govmc --version
+          config_path="$RUNNER_TEMP/govmc-config.yaml"
+          printf '%s\n' 'local-fixture-only' | govmc --config "$config_path" profiles add ci --url https://127.0.0.1 --username ci --password-stdin
+          govmc --config "$config_path" profiles list --json
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize"}' | govmc --config "$config_path" --profile ci mcp serve | grep protocolVersion
+          govmc skill show
+          mkdir -p "$RUNNER_TEMP/govmc-home"
+          export HOME="$RUNNER_TEMP/govmc-home"
+          export USERPROFILE="$HOME"
+          govmc skill install --client codex
+          test -s "$HOME/.agents/skills/esxi-govc/SKILL.md"
+          test -s "$HOME/.agents/skills/esxi-govc/references/usage.md"
+          test -s "$HOME/.agents/skills/esxi-govc/references/clone_workflow.md"
+      - name: Verify SDK-free native and wheel parity
+        if: matrix.smoke
+        shell: bash
+        run: |
+          binary="$GITHUB_WORKSPACE/dist/govmc"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then binary="$GITHUB_WORKSPACE/dist/govmc.exe"; fi
+          export GOVMC_PACKAGED_BINARY="$binary"
+          if [[ "$RUNNER_OS" != "Windows" ]]; then export GOVMC_PACKAGE_SERVE_TEST=1; fi
+          python -m unittest discover -s tests/packaging -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native_${{ matrix.target }}
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel_${{ matrix.target }}
+          path: dist/*.whl
+          if-no-files-found: error
+  pypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/govmc-cli/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheel_*
+          merge-multiple: true
+          path: dist
+      - uses: pypa/gh-action-pypi-publish@release/v1
+  release:
+    needs: pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: native_*
+          merge-multiple: true
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheel_*
+          merge-multiple: true
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: release_notes
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          prerelease=()
+          if [[ "$RELEASE_TAG" == *rc* ]]; then prerelease=(--prerelease); fi
+          gh release create "$RELEASE_TAG" dist/* --title "GoVMC $RELEASE_TAG" --notes-file release_notes.md --verify-tag "${prerelease[@]}"

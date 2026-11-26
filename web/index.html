@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-page-title="总览">总览 - GoVMC WebUI</title>
+  <link rel="stylesheet" href="/theme.css">
+  <link rel="stylesheet" href="/app.css">
+  <script src="/cache.js" defer></script><script src="/i18n.js" defer></script><script src="/select.js" defer></script>
+  <script src="/wmks_loader.js" defer></script>
+  <script src="/app.js" defer></script>
+<link rel="stylesheet" href="/tasks.css"><script src="/tasks.js" defer></script></head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#overview" aria-label="govmc"><pre aria-hidden="true">█▀▀ █▀█ █ █ █▄ ▄█ █▀▀
+█ █ █ █ █ █ █ ▀ █ █
+▀▀▀ ▀▀▀  ▀  ▀   ▀ ▀▀▀</pre></a>
+    <button id="menu" class="top-icon navigation-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="菜单" title="菜单" data-i18n-aria-label="菜单" data-i18n-title="菜单"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button>
+    <nav id="nav" aria-label="工作区" data-i18n-aria-label="工作区">
+      <a href="#overview" data-page="overview"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v5h-8zm0 7h8v11h-8zM3 13h8v8H3z"/></svg><span data-i18n="主机总览">主机总览</span></a>
+      <a href="#console" data-page="console"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v9h-2V5H4v11h7v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm5 17h3v2H7v-2h2Z"/><path d="M13 9v12l3.2-3 2.2 4 1.8-1-2.2-4 4.4-.5L13 9Z"/></svg><span data-i18n="控制台">控制台</span></a>
+      <a href="/datastores.html" class="datastores-link"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg><span data-i18n="tab.datastores">数据存储</span></a>
+    </nav>
+    <div class="top-actions">
+      <div class="update-status" hidden>
+        <span data-i18n="更新时间">更新时间</span>
+        <time id="updated"></time>
+      </div>
+      <div class="top-tools">
+        <details id="environment" class="dropdown environment-picker" hidden>
+          <summary class="top-icon environment-trigger" aria-label="切换环境" data-i18n-aria-label="切换环境"><span class="environment-initials"></span><i class="environment-dot" aria-hidden="true"></i></summary>
+          <div class="dropdown-options"></div>
+        </details>
+        <details id="language" class="dropdown">
+          <summary class="top-icon" aria-label="语言" title="语言" data-i18n-aria-label="语言" data-i18n-title="语言"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12.9 15.1 10.4 12.6A16.4 16.4 0 0 0 14 6h2V4h-6V2H8v2H2v2h10a14.6 14.6 0 0 1-3 5 14.6 14.6 0 0 1-2.2-3H4.6a16.6 16.6 0 0 0 3 4.5l-5 5L4 19l5-5 3.1 3.1.8-2Zm5.6-6.1h-2L12 21h2l1.1-3h4.8l1.1 3h2L18.5 9Zm-2.7 7 1.7-4.5 1.7 4.5h-3.4Z"/></svg></summary>
+          <div class="dropdown-options">
+            <button type="button" data-language="zh" aria-pressed="false" lang="zh-CN">简体中文</button>
+            <button type="button" data-language="en" aria-pressed="false" lang="en">English</button>
+          </div>
+        </details>
+        <a class="top-icon settings-link" href="/settings.html" aria-label="设置" title="设置" data-i18n-aria-label="设置" data-i18n-title="设置"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 3-.5 2-2 1-2-.6-2 3.4 1.5 1.5v3L2.5 15l2 3.4 2-.6 2 1L9 21h4l.5-2.2 2-1 2 .6 2-3.4-1.5-1.7v-3l1.5-1.5-2-3.4-2 .6-2-1L13 3Z"/><circle cx="11" cy="12" r="3"/></svg></a>
+        <div id="theme" class="theme-switch" role="group" aria-label="外观" data-i18n-aria-label="外观">
+          <button type="button" class="top-icon" aria-label="浅色" title="浅色" data-i18n-aria-label="浅色" data-i18n-title="浅色" data-theme-option="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v4h-2zm0 18h2v4h-2zM1 11h4v2H1zm18 0h4v2h-4zM3.5 5l1.4-1.4 2.8 2.8-1.4 1.4zm12.8 12.8 1.4-1.4 2.8 2.8-1.4 1.4zM3.5 19l2.8-2.8 1.4 1.4-2.8 2.8zM16.3 6.3l2.8-2.8 1.4 1.4-2.8 2.8z"/></svg></button>
+          <button type="button" class="top-icon" aria-label="深色" title="深色" data-i18n-aria-label="深色" data-i18n-title="深色" data-theme-option="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M20.7 14.2A8.6 8.6 0 0 1 9.8 3.3a9 9 0 1 0 10.9 10.9Z"/></svg></button>
+          <button type="button" class="top-icon" aria-label="跟随系统" title="跟随系统" data-i18n-aria-label="跟随系统" data-i18n-title="跟随系统" data-theme-option="system" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-7v2h4v2H7v-2h4v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg></button>
+        </div>
+        <button type="button" class="top-icon" aria-label="刷新" title="刷新" data-i18n-aria-label="刷新" data-i18n-title="刷新" id="refresh"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.7 6.3A8 8 0 1 0 20 14h-2.1A6 6 0 1 1 16.3 7.7L13 11h8V3l-3.3 3.3Z"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <div class="shell">
+    <main id="main">
+      <p id="notice" class="notice" role="status" hidden></p>
+      <section id="overview" aria-labelledby="overview-title">
+        <h1 id="overview-title" class="sr-only" data-i18n="主机总览">主机总览</h1>
+        <dl class="metrics" id="kpis"></dl>
+        <section class="surface" aria-labelledby="trend-title">
+          <div class="section-heading"><div><h2 id="trend-title" data-i18n="指标趋势">指标趋势</h2><small id="host-sample" class="muted"></small></div>
+            <label class="range"><span class="sr-only" data-i18n="指标时间范围">指标时间范围</span><select id="host-range"><option value="15" data-i18n="近 15 分钟">近 15 分钟</option><option value="30" data-i18n="近 30 分钟">近 30 分钟</option><option value="60" data-i18n="近 60 分钟">近 60 分钟</option></select></label>
+          </div>
+          <div id="host-charts" class="charts"></div>
+        </section>
+        <section class="surface overview-inventory" aria-labelledby="inventory-title">
+          <div class="section-heading inventory-heading">
+            <div class="inventory-label">
+              <h2 id="inventory-title" data-i18n="虚拟机">虚拟机</h2>
+              <div id="inventory-counts" class="inventory-counts"></div>
+            </div>
+            <div class="filters">
+              <label><span class="sr-only" data-i18n="按名称或 ID 搜索">按名称或 ID 搜索</span><input id="search" type="search" placeholder="搜索名称或 ID" data-i18n-placeholder="搜索名称或 ID"></label>
+              <details id="os-filter" class="dropdown inventory-filter">
+                <summary><span></span></summary>
+                <div class="dropdown-options"></div>
+              </details>
+              <details id="power-filter" class="dropdown inventory-filter">
+                <summary><span></span></summary>
+                <div class="dropdown-options"></div>
+              </details>
+            </div>
+          </div>
+          <div id="vm-list" class="table-wrap"></div>
+          <div id="inventory-pages" class="inventory-pages" hidden>
+            <span id="inventory-page-range" aria-live="polite"></span>
+            <div class="inventory-page-controls">
+              <button id="inventory-prev" type="button" data-i18n="上一页">上一页</button>
+              <span id="inventory-page-number"></span>
+              <button id="inventory-next" type="button" data-i18n="下一页">下一页</button>
+            </div>
+          </div>
+        </section>
+      </section>
+      <section id="console" aria-labelledby="console-title" hidden>
+        <h1 id="console-title" class="sr-only" data-i18n="控制台">控制台</h1>
+        <div class="console-layout">
+          <aside class="console-sidebar">
+            <section class="surface" aria-labelledby="connected-title">
+              <div class="section-heading"><h2 id="connected-title" data-i18n="已连接会话">已连接会话</h2></div>
+              <div id="connected-sessions"></div>
+            </section>
+            <section class="surface" aria-label="运行中的虚拟机" data-i18n-aria-label="运行中的虚拟机">
+              <div class="filters"><label><span class="sr-only" data-i18n="按名称或 ID 搜索">按名称或 ID 搜索</span>
+                <input id="console-search" type="search" placeholder="搜索名称或 ID" data-i18n-placeholder="搜索名称或 ID">
+              </label></div>
+              <div id="console-machines"></div>
+              <div id="console-pages" class="console-pages" hidden></div>
+            </section>
+          </aside>
+          <div class="surface console-workspace">
+            <div id="session-stage" class="session-stage"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <dialog id="environment-confirm" class="disconnect-dialog" aria-labelledby="environment-title" aria-describedby="environment-target environment-detail">
+    <form method="dialog">
+      <h2 id="environment-title" data-i18n="切换环境">切换环境</h2>
+      <dl id="environment-target" class="environment-switch-targets">
+        <div><dt data-i18n="当前环境">当前环境</dt><dd><strong id="environment-from-name"></strong><small id="environment-from-address"></small></dd></div>
+        <div><dt data-i18n="目标环境">目标环境</dt><dd><strong id="environment-to-name"></strong><small id="environment-to-address"></small></dd></div>
+      </dl>
+      <div id="environment-detail" class="environment-switch-notes">
+        <p data-i18n="切换后将重新加载目标环境的数据，并重置筛选条件。">切换后将重新加载目标环境的数据，并重置筛选条件。</p>
+        <p data-i18n="当前控制台连接将断开，虚拟机继续运行。">当前控制台连接将断开，虚拟机继续运行。</p>
+      </div>
+      <div class="disconnect-actions">
+        <button type="submit" value="cancel" autofocus data-i18n="取消">取消</button>
+        <button type="submit" value="switch" class="primary" data-i18n="确认切换">确认切换</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="disconnect-confirm" class="disconnect-dialog" aria-labelledby="disconnect-title" aria-describedby="disconnect-target disconnect-detail">
+    <form method="dialog">
+      <h2 id="disconnect-title" data-i18n="断开连接">断开连接</h2>
+      <p id="disconnect-target"></p>
+      <p id="disconnect-detail" data-i18n="远程控制会话将断开，虚拟机会继续运行。">远程控制会话将断开，虚拟机会继续运行。</p>
+      <div class="disconnect-actions">
+        <button type="submit" value="cancel" autofocus data-i18n="取消">取消</button>
+        <button type="submit" value="disconnect" class="disconnect-commit" data-i18n="确认断开">确认断开</button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="leave-console-confirm" class="disconnect-dialog" aria-labelledby="leave-console-title" aria-describedby="leave-console-detail">
+    <form method="dialog">
+      <h2 id="leave-console-title" data-i18n="console.leave_title"></h2>
+      <p id="leave-console-detail" data-i18n="console.leave_detail"></p>
+      <div class="disconnect-actions">
+        <button type="submit" value="cancel" autofocus data-i18n="取消">取消</button>
+        <button type="submit" value="leave" class="primary" data-i18n="console.leave_action"></button>
+      </div>
+    </form>
+  </dialog>
+  <dialog id="token-dialog" aria-labelledby="token-title">
+    <form id="token-form"><h2 id="token-title" data-i18n="输入 API 令牌">输入 API 令牌</h2><label><span data-i18n="令牌">令牌</span> <input id="token-input" type="password" required autocomplete="off"></label>
+      <div class="dialog-actions"><button type="button" data-close data-i18n="取消">取消</button><button class="primary" type="submit" data-i18n="连接">连接</button></div>
+    </form>
+  </dialog>
+  <dialog id="action-dialog" aria-labelledby="action-title">
+    <form id="action-form"><h2 id="action-title"></h2><p id="action-target" class="muted"></p><div id="action-fields"></div><p id="action-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" data-close data-i18n="取消">取消</button><button class="primary" id="action-submit" type="submit" data-i18n="确认">确认</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

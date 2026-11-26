@@ -1,0 +1,35 @@
+name: Test
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: go vet ./...
+      - run: make build
+      - run: go test -race ./...
+        env:
+          GOVMC_TUI_SIM_TEST: '1'
+          GOVMC_WEB_SIM_TEST: '1'
+          GOVMC_SERVE_BINARY: ${{ github.workspace }}/bin/govmc
+      - run: python -m unittest discover -s tests/packaging -v
+      - name: Browser regression
+        run: |
+          npm install --global @playwright/cli
+          npx playwright install --with-deps chrome
+          make web-smoke PWCLI=playwright-cli

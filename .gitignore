@@ -1,0 +1,15 @@
+.env
+.env.*
+bin/
+dist/
+*.exe
+.DS_Store
+__pycache__/
+.playwright-cli/
+output/playwright/
+
+# Browser SDK is installed separately; retain any existing local copy untracked.
+web/wmks/
+
+# Local design notes, operational evidence, and documentation drafts.
+/.docs/

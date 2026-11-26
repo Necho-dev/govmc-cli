@@ -1,0 +1,129 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: flex;
+  font: 13px/1.4 var(--mono);
+  color: var(--text);
+  background: var(--bg);
+}
+
+button {
+  font: inherit;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+button:disabled { opacity: 0.45; cursor: default; }
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: var(--panel);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+#status { flex: 1 1 180px; color: var(--muted); min-width: 0; }
+.hud-metric {
+  flex-shrink: 0;
+  font: 11px/1.2 var(--mono);
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+#wmksContainer,
+#wmksContainer.ui-widget,
+#wmksContainer.ui-widget-content {
+  flex: 1 1 auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  position: relative;
+  overflow: hidden;
+  background: var(--console-matte) !important;
+  border: 0 !important;
+  outline: none;
+}
+/* SDK 用 scale() 时默认原点是中心，再配 left=(parent-guestW)/2 会把画面甩出容器（叠到侧栏），键鼠坐标也全偏 */
+#wmksContainer canvas,
+#wmksContainer video {
+  position: absolute;
+  transform-origin: 0 0 !important;
+  /* 未点击接管前必须能看见本机光标，避免 canvas 把指针吃掉 */
+  cursor: default !important;
+}
+#wmksContainer:not([data-state="connected"]) canvas,
+#wmksContainer:not([data-state="connected"]) video { visibility: hidden; }
+#wmksContainer.controlling canvas,
+#wmksContainer.controlling video {
+  cursor: none !important;
+}
+
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 600px) {
+  #status { flex-basis: 100%; }
+
+}
+
+
+.console-bar { flex: none; display: flex; flex-wrap: nowrap; justify-content: space-between; min-height: 43px; gap: 8px; padding: 6px 9px; overflow-x: auto; }
+.console-identity, .console-tools { display: flex; flex: none; align-items: center; gap: 6px; }
+.console-identity > strong { max-width: 26ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.console-bar #status, .console-bar .hud-metric, .console-tools button {
+  display: inline-flex; align-items: center; flex: none; white-space: nowrap;
+  min-height: 27px; padding: 2px 6px; line-height: 1.2; font-size: 11px;
+}
+.console-bar #status { border: 1px solid var(--line); border-radius: 4px; }
+.console-bar #status[data-state="connected"] { color: var(--success); }
+.console-bar #status[data-state="error"] { color: var(--warn); }
+#disconnect { color: var(--critical); }
+#disconnect:hover:not(:disabled) { background: var(--danger-tint); border-color: var(--critical); }
+@media (max-width: 600px) {
+  .console-bar { gap: 5px; padding-inline: 5px; }
+  .console-identity, .console-tools { gap: 4px; }
+  .console-identity > strong { max-width: 12ch; }
+}
+
+@media (max-width: 600px) {
+  .console-bar .hud-detail { display: none; }
+}
+
+.wmks-guide{max-width:660px;margin:auto;padding:24px;text-align:left;line-height:1.6}
+.wmks-guide h3{display:flex;align-items:center;gap:10px;font-size:15px;margin:0 0 12px}
+.wmks-guide svg{width:16px;height:16px;flex:none}
+.wmks-guide h3>svg{width:22px;height:22px;color:var(--accent)}
+.wmks-guide p{font-size:13px;white-space:normal;margin:8px 0}
+.wmks-guide .wmks-intro{margin-bottom:18px;color:var(--muted)}
+.wmks-guide .wmks-command-label{font-size:12px;margin-bottom:6px}
+.wmks-command{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px;border:1px solid var(--line);border-radius:6px}
+.wmks-command>svg{color:var(--muted)}
+.wmks-command code{flex:1;min-width:0;font-size:12px;overflow-wrap:anywhere}
+.wmks-guide button{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:12px;cursor:pointer;padding:6px 10px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:inherit}
+.wmks-guide .wmks-config-note,.wmks-guide .wmks-session-note{color:var(--muted);font-size:12px;margin:6px 0}
+.wmks-guide .wmks-next-step{margin-top:18px}
+.wmks-guide .wmks-scope-note{display:flex;gap:7px;align-items:flex-start;color:var(--muted);font-size:12px;margin:14px 0}
+.wmks-scope-note svg{margin-top:2px}
+.wmks-guide .wmks-recheck{color:var(--accent)}
+
+.console-viewport { display:flex; position:relative; flex:1; min-height:0; min-width:0; }
+.console-placeholder { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; padding:24px; text-align:center; background:var(--console-matte); }
+.console-placeholder[hidden] { display:none; }
+.console-placeholder>svg { width:38px; height:38px; color:var(--muted); }
+.console-placeholder h2 { margin:0; font-size:15px; font-weight:600; overflow-wrap:anywhere; }
+.console-placeholder p { margin:0; max-width:46ch; color:var(--muted); line-height:1.6; }
+.console-placeholder button { margin-top:6px; color:var(--accent); display:inline-flex; align-items:center; gap:7px; }
+.console-placeholder button svg { width:16px; height:16px; }
+.console-placeholder button[hidden] { display:none; }

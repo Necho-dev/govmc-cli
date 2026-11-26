@@ -1,0 +1,479 @@
+openapi: 3.0.3
+info:
+  title: Independent ESXi REST (govmomi)
+  version: "1.0.0"
+  description: |
+    Product surface is REST + MCP. govc is troubleshooting only.
+    Standalone ESXi uses a directory clone workflow; no vCenter CloneVM. External VM id is Host Client /ui/#/host/vms/{id}.
+    Metrics: GET /v1/metrics (index) → /v1/metrics/counters (names) →
+    /v1/host/metrics or /v1/vms/{id}/metrics (series). GET /v1/host is inventory, not series.
+    Networks: GET /v1/networks is host portgroups; VM vNICs are /v1/vms/{id}/networks.
+    Console tickets return local /ws/console only; ESXi WSS is never exposed.
+    Task and journal queries preserve ownership across saved-profile renames.
+    profile is the current display name; profileId is stable; originalProfile
+    retains the original name when different. Original persisted records are not rewritten.
+    With saved-profile Web serving, X-Govmc-Profile selects the environment for each
+    device request. Omitted headers use the startup target. WebSocket ticket URLs
+    include their originating profile. Web selection does not change saved active.
+servers:
+  - url: /
+paths:
+  /v1/console/capabilities:
+    get:
+      summary: Browser WMKS SDK state for this serve process (independent of Profile)
+      responses:
+        '200':
+          description: Startup snapshot; SDK changes require restarting serve
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [available, state]
+                properties:
+                  available: {type: boolean}
+                  state: {type: string, enum: [ready, missing, invalid]}
+                  baseURL: {type: string, description: Validated same-origin runtime resources}
+                  digest: {type: string}
+                  sdkVersion: {type: string}
+                  reason: {type: string}
+        '401':
+          description: Service API token is required
+  /v1/datastores/entries:
+    get:
+      summary: List files and directories in one datastore query
+      parameters:
+        - { name: ds, in: query, required: true, schema: { type: string } }
+        - { name: path, in: query, schema: { type: string, default: "" } }
+      responses:
+        "200": { description: "Array of path, folder, size and modified; current directory only." }
+  /v1/datastores/file/preview:
+    get:
+      summary: Read a bounded text, image or PDF preview
+      parameters:
+        - { name: ds, in: query, required: true, schema: { type: string } }
+        - { name: path, in: query, required: true, schema: { type: string } }
+      responses:
+        "200": { description: "Plain text (1 MiB maximum), PNG/JPEG/GIF/WebP or PDF (16 MiB maximum). No HTML or SVG execution." }
+        "413": { description: File exceeds preview limit }
+        "415": { description: Unsupported preview format }
+  /v1/settings/logs:
+    get:
+      summary: Query local runtime logs without connecting to ESXi
+      description: Read-only; supports profile, source, level, outcome, search, since/until RFC3339, limit (1..500), offset (0..100000). Requires configured API token and same-origin checks.
+      responses:
+        "200": { description: "JSON: items, hasMore, offset, limit. Only allowlisted event metadata." }
+        "400": { description: Invalid filters or pagination }
+        "401": { description: API token required }
+  /v1/settings/audits:
+    get:
+      summary: Query local SQLite operation audits without connecting to ESXi
+      description: Same filters and pagination as logs. No mutation or cleanup route. Outcomes include pending, success, denied, failed and unknown.
+      responses:
+        "200": { description: "JSON: items, hasMore, offset, limit." }
+  /v1/settings/status:
+    get:
+      summary: Local log and audit retention policy and degraded storage status
+      responses:
+        "200": { description: Local journal metadata }
+  /v1/profiles:
+    get:
+      summary: List saved environments without passwords or ciphertext
+      responses:
+        "200":
+          description: Startup target, saved active, process instance and environment metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current: { type: string }
+                  active: { type: string }
+                  instance: { type: string }
+                  profiles:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: { type: string }
+                        url: { type: string }
+                        username: { type: string }
+  /v1/profiles/connect:
+    post:
+      summary: Authenticate a saved environment for this browser tab
+      description: Reuses the encrypted saved credential. Does not change active or MCP permissions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name]
+              properties:
+                name: { type: string }
+      responses:
+        "200": { description: Connection ready; use X-Govmc-Profile on subsequent requests }
+        "400": { description: Invalid environment selection }
+        "502": { description: Environment unavailable; keep the previous selection }
+  /v1/about:
+    get:
+      summary: ESXi About
+      responses:
+        "200": { description: OK }
+  /v1/vms:
+    get:
+      summary: List VMs (ops projection; view=full for vmInfo)
+      parameters:
+        - in: query
+          name: view
+          schema: { type: string, enum: [ops, full] }
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}:
+    get:
+      summary: VM by Host Client moref (/ui/#/host/vms/{id}), name, or unique UUID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: OK }
+        "409": { description: Ambiguous uuid }
+    patch:
+      summary: Reconfigure supported VM settings
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirm: { type: boolean }
+                numCPU: { type: integer }
+                memoryMB: { type: integer }
+                nestedHV: { type: boolean }
+                iommu: { type: boolean }
+                changeVersion: { type: string }
+                name: { type: string }
+                coresPerSocket: { type: integer, minimum: 0 }
+                cpuHotAddEnabled: { type: boolean }
+                memoryHotAddEnabled: { type: boolean }
+                vpmc: { type: boolean }
+                cpuReservationMHz: { type: integer, minimum: 0 }
+                cpuLimitMHz: { type: integer, minimum: -1 }
+                memoryReservationMB: { type: integer, minimum: 0 }
+                memoryLimitMB: { type: integer, minimum: -1 }
+                requirePoweredOff: { type: boolean, description: Reject reconfiguration unless the VM is powered off }
+                requireHotAdd: { type: boolean, description: Require a running VM and validate supported hot-add and device changes }
+                expandDisks:
+                  type: array
+                  items:
+                    type: object
+                    required: [key, capacityMiB]
+                    properties:
+                      key: { type: integer }
+                      capacityMiB: { type: integer, minimum: 1 }
+                addDiskMiB: { type: integer, minimum: 1, description: Create a thin disk on the VM datastore using an existing SCSI controller }
+                editNICs:
+                  type: array
+                  items:
+                    type: object
+                    required: [key]
+                    properties:
+                      key: { type: integer }
+                      portgroup: { type: string }
+                      connected: { type: boolean, description: Current connection while powered on }
+                      startConnected: { type: boolean }
+                addNIC:
+                  type: object
+                  required: [portgroup, adapter]
+                  properties:
+                    portgroup: { type: string }
+                    adapter: { type: string, enum: [vmxnet3, e1000e] }
+                    startConnected: { type: boolean }
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/devices:
+    get:
+      summary: VM disks, networks (vNICs), vGPU
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/networks:
+    get:
+      summary: VM virtual NICs (not host portgroups)
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Add or replace a VM network adapter onto a portgroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                confirm: { type: boolean }
+                portgroup: { type: string }
+                adapter: { type: string }
+                replace: { type: boolean }
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/screenshot:
+    get:
+      summary: PNG screenshot (409 if powered off)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: PNG
+          content:
+            image/png:
+              schema: { type: string, format: binary }
+  /v1/vms/{id}/metrics:
+    get:
+      summary: VM QueryPerf series (not the counter catalog)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: names
+          schema: { type: string }
+        - in: query
+          name: instance
+          schema: { type: string, description: Default empty = VM aggregate }
+        - in: query
+          name: start
+          schema: { type: string, format: date-time }
+        - in: query
+          name: end
+          schema: { type: string, format: date-time }
+        - in: query
+          name: maxSample
+          schema: { type: integer }
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/console:
+    post:
+      summary: One-shot local WebMKS ticket (2 minutes)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        "200": { description: { ws, note } }
+  /v1/vms/{id}/power:
+    post:
+      summary: Power action; confirm required
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action: { type: string, enum: [on, off, reset, suspend] }
+                confirm: { type: boolean }
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/question:
+    get:
+      summary: Pending question
+      responses:
+        "200": { description: OK }
+    post:
+      summary: Answer question; confirm required
+      responses:
+        "200": { description: OK }
+  /v1/vms/{id}/unregister:
+    post:
+      summary: Unregister (files kept; MoRef changes)
+      responses:
+        "200": { description: OK }
+  /v1/vms/register:
+    post:
+      summary: Register a .vmx
+      responses:
+        "200": { description: OK }
+  /v1/host:
+    get:
+      summary: Host hardware, uptime, health, portgroups and login identity. Not time series.
+      responses:
+        "200": { description: OK }
+  /v1/host/metrics:
+    get:
+      summary: Host QueryPerf series. Same query params as /v1/vms/{id}/metrics.
+      responses:
+        "200": { description: OK }
+  /v1/networks:
+    get:
+      summary: Host portgroups. VM vNICs are /v1/vms/{id}/networks.
+      responses:
+        "200": { description: OK }
+  /v1/datastores:
+    get:
+      summary: Datastore inventory only (summary may be stale)
+      responses:
+        "200": { description: OK }
+  /v1/datastores/refresh:
+    post:
+      summary: Refresh host storage + datastore freeSpace/capacity then return inventory
+      responses:
+        "200": { description: OK }
+  /v1/datastores/folder:
+    get:
+      summary: List subfolders
+    post:
+      summary: Create folder
+    delete:
+      summary: Delete folder (confirm)
+  /v1/datastores/folder/copy:
+    post:
+      summary: Copy folder; default dryRun
+      description: Optional dstDatastore selects another datastore on the same ESXi; defaults to source. No overwrite. Preview and execution share validation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FileTransferRequest' }
+      responses:
+        "200": { description: Read-only preview with explicit source and destination datastore paths }
+        "202": { description: Persistent task accepted }
+  /v1/datastores/folder/move:
+    post:
+      summary: Move folder
+      description: Optional dstDatastore selects another datastore on the same ESXi; defaults to source. No overwrite. Preview and execution share validation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FileTransferRequest' }
+      responses:
+        "200": { description: Read-only preview with explicit source and destination datastore paths }
+        "202": { description: Persistent task accepted }
+  /v1/datastores/folder/rename:
+    post:
+      summary: Rename folder (move)
+  /v1/datastores/file:
+    get:
+      summary: List files in a folder
+    put:
+      summary: Upload/overwrite file
+    delete:
+      summary: Delete file
+  /v1/datastores/file/content:
+    get:
+      summary: Download file
+  /v1/datastores/file/copy:
+    post:
+      summary: Copy file
+      description: Optional dstDatastore selects another datastore on the same ESXi; defaults to source. No overwrite. Preview and execution share validation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FileTransferRequest' }
+      responses:
+        "200": { description: Read-only preview with explicit source and destination datastore paths }
+        "202": { description: Persistent task accepted }
+  /v1/datastores/file/move:
+    post:
+      summary: Move file
+      description: Optional dstDatastore selects another datastore on the same ESXi; defaults to source. No overwrite. Preview and execution share validation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FileTransferRequest' }
+      responses:
+        "200": { description: Read-only preview with explicit source and destination datastore paths }
+        "202": { description: Persistent task accepted }
+  /v1/datastores/file/rename:
+    post:
+      summary: Rename file
+  /v1/metrics:
+    get:
+      summary: Metrics API index (hierarchy only, no samples)
+      responses:
+        "200": { description: OK }
+  /v1/metrics/counters:
+    get:
+      summary: Counter name catalog. Use names= on a series endpoint next.
+      parameters:
+        - in: query
+          name: entity
+          schema: { type: string, enum: [vm, host] }
+      responses:
+        "200": { description: OK }
+  /v1/custom/clone:
+    post:
+      summary: Clone powered-off source; default read-only preview; execution returns persistent task id
+      description: Source datastore is inferred from VMX. Optional destination datastore must be accessible on the same ESXi. Preview validates capacity and no overwrite; confirmed execution persists a vm.clone task.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [src, dst]
+              properties:
+                src: { type: string, description: Powered-off source VM }
+                dst: { type: string, description: New VM name and directory }
+                datastore: { type: string, description: Optional source datastore assertion }
+                dstDatastore: { type: string, description: Destination datastore; defaults to source }
+                dryRun: { type: boolean, default: true }
+                confirm: { type: boolean, default: false }
+                requestKey: { type: string }
+      responses:
+        "200": { description: read-only validated clone plan }
+        "202": { description: Persistent task record with id and queued status }
+  /v1/custom/clone/tasks:
+    get:
+      summary: List persistent tasks (legacy clone URL alias)
+  /v1/custom/clone/tasks/{taskId}:
+    get:
+      summary: Clone task progress
+  /v1/custom/clone/tasks/{taskId}/cancel:
+    post:
+      summary: Cancel between steps
+  /v1/tasks:
+    get:
+      summary: List persistent tasks; filter profile via header, status, kind, source, search, since, until, limit, offset, allProfiles
+      responses:
+        "200": { description: "items, hasMore, active" }
+  /v1/tasks/{taskId}:
+    get:
+      summary: Persistent task details, steps, execution endpoint and result
+      responses:
+        "200": { description: Task record }
+  /v1/tasks/{taskId}/cancel:
+    post:
+      summary: Request cancellation with confirm=true; no rollback guarantee
+      responses:
+        "200": { description: cancel_requested }
+  /v1/openapi.yaml:
+    get:
+      summary: This document
+      responses:
+        "200": { description: YAML }
+
+components:
+  schemas:
+    FileTransferRequest:
+      type: object
+      required: [ds, src, dst]
+      properties:
+        ds: { type: string, description: Source datastore }
+        dstDatastore: { type: string, description: Destination datastore; defaults to ds }
+        src: { type: string, description: Source relative path }
+        dst: { type: string, description: Exact destination relative path including filename }
+        dryRun: { type: boolean, default: true }
+        confirm: { type: boolean, default: false }

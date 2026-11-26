@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title data-page-title="控制台">控制台 - GoVMC WebUI</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/console.css" />
+</head>
+<body>
+  <main>
+    <header class="console-bar">
+      <div class="console-identity">
+        <strong id="machine-name">—</strong>
+        <span id="status" role="status" data-i18n="未连接">未连接</span>
+        <span id="hud" class="hud-metric">— fps</span>
+        <span id="hud-resolution" class="hud-metric hud-detail">—</span>
+        <span id="hud-scale" class="hud-metric hud-detail">—</span>
+      </div>
+      <div class="console-tools">
+        <button type="button" id="cad" disabled>Ctrl+Alt+Del</button>
+        <button type="button" id="disconnect" disabled data-i18n="断开连接">断开连接</button>
+      </div>
+    </header>
+    <div class="console-viewport">
+      <div id="wmksContainer" tabindex="0"></div>
+      <section id="console-placeholder" class="console-placeholder" role="status" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4M9 8l6 5m0-5-6 5"/></svg>
+        <h2 id="console-placeholder-title"></h2>
+        <p id="console-placeholder-detail"></p>
+        <button id="console-reconnect" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 7v5h-5M20 12a8 8 0 1 0-2.3 5.7"/></svg><span id="console-reconnect-label" data-i18n="console.reconnect"></span></button>
+      </section>
+    </div>
+  </main>
+  <dialog id="disconnect-confirm" class="disconnect-dialog" aria-labelledby="disconnect-title" aria-describedby="disconnect-target disconnect-detail">
+    <form method="dialog">
+      <h2 id="disconnect-title" data-i18n="断开连接">断开连接</h2>
+      <p id="disconnect-target"></p>
+      <p id="disconnect-detail" data-i18n="远程控制会话将断开，虚拟机会继续运行。">远程控制会话将断开，虚拟机会继续运行。</p>
+      <div class="disconnect-actions">
+        <button type="submit" value="cancel" autofocus data-i18n="取消">取消</button>
+        <button type="submit" value="disconnect" class="disconnect-commit" data-i18n="确认断开">确认断开</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="/i18n.js"></script>
+  <script src="/wmks_loader.js"></script>
+  <script src="/console.js"></script>
+</body>
+</html>

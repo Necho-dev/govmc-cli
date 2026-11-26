@@ -1,0 +1,72 @@
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+:root {
+  color-scheme: light dark;
+  --page: light-dark(#f6f6f8, #09090b);
+  --bg: var(--page);
+  --surface: light-dark(#ffffff, #121215);
+  --panel: var(--surface);
+  --raised: light-dark(#f4f4f6, #18181c);
+  --text: light-dark(#18181b, #ececef);
+  --muted: light-dark(#62626d, #9a9aa5);
+  --line: light-dark(#e4e4e9, #26262c);
+  --line-strong: light-dark(#d4d4dc, #33333a);
+  --accent: light-dark(#215ec9, #83b2ff);
+  --on-accent: light-dark(#fff, #0e2242);
+  --selected: light-dark(#e9f1ff, #182842);
+  --warn: light-dark(#845300, #ffce79);
+  --warn-bg: light-dark(#fff4de, #3c3021);
+  --danger-tint: light-dark(#fff0f0, #381f24);
+  --critical: light-dark(#b0242d, #ff7878);
+  --console-matte: light-dark(#ededf0, #1c1c21);
+  --success-bg: light-dark(#eaf7ef, #173325);
+  --success: light-dark(#137244, #4ade80);
+  --cyan: light-dark(#086d83, #67d5e6);
+  --violet: light-dark(#7040b4, #b89af4);
+  --grid: light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 8%));
+  --shadow: 0 1px 2px light-dark(#0000000f, #0006);
+  --radius: 12px;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "PingFang SC", "Microsoft YaHei", monospace;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+* { scrollbar-width: thin; scrollbar-color: var(--line-strong) transparent; }
+
+
+.disconnect-dialog {
+  width: min(400px, calc(100vw - 32px)); padding: 16px; color: var(--text);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 9px;
+}
+.disconnect-dialog::backdrop { background: #09121cb3; }
+.disconnect-dialog h2 { margin: 0 0 8px; font-size: 16px; }
+.disconnect-dialog p { margin: 0 0 8px; overflow-wrap: anywhere; }
+#disconnect-target { font-weight: 650; }
+#disconnect-detail { color: var(--muted); }
+.disconnect-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+.disconnect-actions button { font: inherit; }
+.disconnect-actions .disconnect-commit { color: var(--critical); background: var(--danger-tint); border-color: var(--critical); }
+
+/* Additional dark palettes are selected only from Settings. */
+:root[data-theme="magic-blue"] {
+  color-scheme:dark;
+  --page:#0f182b; --surface:#121c32; --raised:#1a253b;
+  --text:#f0f6fc; --muted:#a4b2ca;
+  --line:#293750; --line-strong:#3a4d6d;
+  --accent:#9abaff; --on-accent:#0f182b; --selected:#23395d;
+  --console-matte:#0f182b;
+}
+:root[data-theme="classic-dark"] {
+  color-scheme:dark;
+  --page:#0d0d0d; --surface:#121212; --raised:#1b1b1b;
+  --text:#fafafa; --muted:#a3a3a3;
+  --line:#2b2b2b; --line-strong:#3b3b3b;
+  --accent:#93b8f7; --on-accent:#101b2d; --selected:#242d3a;
+  --console-matte:#0d0d0d;
+}

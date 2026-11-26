@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title data-page-title="tab.datastores">数据存储 - GoVMC WebUI</title><link rel="stylesheet" href="/theme.css"><link rel="stylesheet" href="/app.css"><link rel="stylesheet" href="/datastores.css"><script src="/cache.js" defer></script><script src="/i18n.js" defer></script><script src="/select.js" defer></script><script src="/datastores.js" defer></script><link rel="stylesheet" href="/tasks.css"><script src="/tasks.js" defer></script></head><body>
+  <header class="topbar">
+    <a class="brand" href="/#overview" aria-label="govmc"><pre aria-hidden="true">█▀▀ █▀█ █ █ █▄ ▄█ █▀▀
+█ █ █ █ █ █ █ ▀ █ █
+▀▀▀ ▀▀▀  ▀  ▀   ▀ ▀▀▀</pre></a>
+    <button id="menu" class="top-icon navigation-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="菜单" title="菜单" data-i18n-aria-label="菜单" data-i18n-title="菜单"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button>
+    <nav id="nav" aria-label="工作区" data-i18n-aria-label="工作区">
+      <a href="/#overview" data-page="overview"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M3 3h8v8H3zm10 0h8v5h-8zm0 7h8v11h-8zM3 13h8v8H3z"/></svg><span data-i18n="主机总览">主机总览</span></a>
+      <a href="/#console" data-page="console"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v9h-2V5H4v11h7v2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm5 17h3v2H7v-2h2Z"/><path d="M13 9v12l3.2-3 2.2 4 1.8-1-2.2-4 4.4-.5L13 9Z"/></svg><span data-i18n="控制台">控制台</span></a>
+      <a href="/datastores.html" class="datastores-link" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 12c0 4 16 4 16 0"/></svg><span data-i18n="tab.datastores">数据存储</span></a>
+    </nav>
+    <div class="top-actions">
+      <div class="update-status" hidden>
+        <span data-i18n="更新时间">更新时间</span>
+        <time id="updated"></time>
+      </div>
+      <div class="top-tools">
+        <details id="environment" class="dropdown environment-picker" hidden>
+          <summary class="top-icon environment-trigger" aria-label="切换环境" data-i18n-aria-label="切换环境"><span class="environment-initials"></span><i class="environment-dot" aria-hidden="true"></i></summary>
+          <div class="dropdown-options"></div>
+        </details>
+        <details id="language" class="dropdown">
+          <summary class="top-icon" aria-label="语言" title="语言" data-i18n-aria-label="语言" data-i18n-title="语言"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12.9 15.1 10.4 12.6A16.4 16.4 0 0 0 14 6h2V4h-6V2H8v2H2v2h10a14.6 14.6 0 0 1-3 5 14.6 14.6 0 0 1-2.2-3H4.6a16.6 16.6 0 0 0 3 4.5l-5 5L4 19l5-5 3.1 3.1.8-2Zm5.6-6.1h-2L12 21h2l1.1-3h4.8l1.1 3h2L18.5 9Zm-2.7 7 1.7-4.5 1.7 4.5h-3.4Z"/></svg></summary>
+          <div class="dropdown-options">
+            <button type="button" data-language="zh" aria-pressed="false" lang="zh-CN">简体中文</button>
+            <button type="button" data-language="en" aria-pressed="false" lang="en">English</button>
+          </div>
+        </details>
+        <a class="top-icon settings-link" href="/settings.html" aria-label="设置" title="设置" data-i18n-aria-label="设置" data-i18n-title="设置"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 3-.5 2-2 1-2-.6-2 3.4 1.5 1.5v3L2.5 15l2 3.4 2-.6 2 1L9 21h4l.5-2.2 2-1 2 .6 2-3.4-1.5-1.7v-3l1.5-1.5-2-3.4-2 .6-2-1L13 3Z"/><circle cx="11" cy="12" r="3"/></svg></a>
+        <div id="theme" class="theme-switch" role="group" aria-label="外观" data-i18n-aria-label="外观">
+          <button type="button" class="top-icon" aria-label="浅色" title="浅色" data-i18n-aria-label="浅色" data-i18n-title="浅色" data-theme-option="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v4h-2zm0 18h2v4h-2zM1 11h4v2H1zm18 0h4v2h-4zM3.5 5l1.4-1.4 2.8 2.8-1.4 1.4zm12.8 12.8 1.4-1.4 2.8 2.8-1.4 1.4zM3.5 19l2.8-2.8 1.4 1.4-2.8 2.8zM16.3 6.3l2.8-2.8 1.4 1.4-2.8 2.8z"/></svg></button>
+          <button type="button" class="top-icon" aria-label="深色" title="深色" data-i18n-aria-label="深色" data-i18n-title="深色" data-theme-option="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M20.7 14.2A8.6 8.6 0 0 1 9.8 3.3a9 9 0 1 0 10.9 10.9Z"/></svg></button>
+          <button type="button" class="top-icon" aria-label="跟随系统" title="跟随系统" data-i18n-aria-label="跟随系统" data-i18n-title="跟随系统" data-theme-option="system" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M4 3h16a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2h-7v2h4v2H7v-2h4v-2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/></svg></button>
+        </div>
+        <button type="button" class="top-icon" aria-label="刷新" title="刷新" data-i18n-aria-label="刷新" data-i18n-title="刷新" id="refresh"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M17.7 6.3A8 8 0 1 0 20 14h-2.1A6 6 0 1 1 16.3 7.7L13 11h8V3l-3.3 3.3Z"/></svg></button>
+      </div>
+    </div>
+  </header>
+<main class="files-shell" aria-label="数据存储" data-i18n-aria-label="tab.datastores">
+ <p id="notice" class="notice" role="status" hidden></p>
+ <div class="files-workspace">
+  <aside class="surface stores-sidebar"><div class="store-heading"><div class="store-heading-label"><h2 data-i18n="files.storage">存储</h2><span id="store-count" class="muted"></span></div><button id="reload-stores" class="file-icon-button" type="button" data-icon="refresh" data-i18n-title="刷新" data-i18n-aria-label="刷新"></button></div><div id="store-list"></div><details id="store-details" class="store-details" open><summary data-i18n="files.storage_details">存储详情</summary><div id="store-summary" class="store-summary"></div></details></aside>
+  <section class="surface files-main" aria-label="目录内容" data-i18n-aria-label="files.directory">
+   <div class="directory-bar"><button id="back" class="file-icon-button" type="button" data-icon="back" data-i18n-title="files.back" data-i18n-aria-label="files.back"></button><button id="up" class="file-icon-button" type="button" data-icon="up" data-i18n-title="files.up" data-i18n-aria-label="files.up"></button><nav id="breadcrumbs" aria-label="路径" data-i18n-aria-label="files.path"></nav><button id="reload-files" class="file-icon-button" type="button" data-icon="refresh" data-i18n-title="刷新" data-i18n-aria-label="刷新"></button></div>
+   <div class="files-toolbar"><div class="file-actions"><button type="button" id="mkdir" data-icon="folder-plus" data-i18n="files.new_folder">新建文件夹</button><button type="button" id="upload" data-icon="upload" data-i18n="files.upload">上传文件</button></div><input id="file-search" type="search" data-i18n-placeholder="files.search" placeholder="筛选当前目录"><div id="file-kind" class="file-kind-switch" role="group" aria-label="文件类型" data-i18n-aria-label="files.kind"><button type="button" data-kind="all" data-icon="all" data-i18n="files.all_short" aria-pressed="true">全部</button><button type="button" data-kind="folder" data-icon="folder" data-i18n="files.folders" aria-pressed="false">文件夹</button><button type="button" data-kind="file" data-icon="file" data-i18n="files.files" aria-pressed="false">文件</button></div></div>
+   <div class="file-table-wrap" id="file-table-wrap"><table class="file-table"><thead><tr><th><button type="button" data-sort="name" data-i18n="files.name">名称</button></th><th data-i18n="files.kind">类型</th><th><button type="button" data-sort="size" data-i18n="files.size">大小</button></th><th><button type="button" data-sort="modified" data-i18n="files.modified">修改时间</button></th><th class="file-operations" data-i18n="files.actions">操作</th></tr></thead><tbody id="file-body"></tbody></table><p id="file-empty" class="files-empty"></p></div>
+   <footer class="files-footer"><span id="file-info" class="muted"></span><div><button id="previous" type="button" data-i18n="上一页">上一页</button><span id="page-number"></span><button id="next" type="button" data-i18n="下一页">下一页</button></div></footer>
+  </section>
+ </div>
+ <input id="upload-input" type="file" hidden>
+</main>
+<dialog id="file-dialog" aria-labelledby="file-dialog-title"><form id="file-form"><h2 id="file-dialog-title"></h2><p id="operation-source" class="muted"></p><div id="operation-fields"></div><div id="operation-plan" class="operation-plan" hidden></div><p id="operation-error" role="alert"></p><div class="dialog-actions"><button type="button" id="operation-cancel" data-i18n="取消">取消</button><button type="submit" id="operation-submit" class="primary" data-i18n="files.preview_changes">预览变更</button></div></form></dialog>
+<dialog id="preview-dialog" aria-labelledby="preview-title"><header><h2 id="preview-title"></h2><button type="button" id="preview-close" class="file-icon-button" data-icon="close" data-i18n-title="关闭" data-i18n-aria-label="关闭"></button></header><div id="preview-content"></div></dialog>
+<dialog id="environment-confirm" class="disconnect-dialog" aria-labelledby="environment-title"><form method="dialog"><h2 id="environment-title" data-i18n="切换环境">切换环境</h2><p id="environment-target"></p><p class="muted" data-i18n="files.switch_notice">切换后将清空当前目录和筛选；虚拟机继续运行。</p><div class="disconnect-actions"><button value="cancel" data-i18n="取消">取消</button><button value="switch" class="primary" data-i18n="确认切换">确认切换</button></div></form></dialog>
+<dialog id="token-dialog"><form id="token-form"><h2 data-i18n="输入 API 令牌">输入 API 令牌</h2><label data-i18n="令牌">令牌</label><input type="password" id="api-token" autocomplete="off" required><div class="dialog-actions"><button type="button" id="token-cancel" data-i18n="取消">取消</button><button type="submit" class="primary" data-i18n="确认">确认</button></div></form></dialog>
+</body></html>

@@ -1,0 +1,450 @@
+.files-shell {
+  width: 100%;
+  margin: auto;
+  padding: 24px 28px;
+}
+.store-heading-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#store-count {
+  font-size: 11px;
+}
+.files-workspace {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.files-workspace > * {
+  min-width: 0;
+}
+.stores-sidebar {
+  padding: 8px;
+}
+.store-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 6px 12px;
+}
+.store-button {
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border-color: transparent;
+  background: transparent;
+  margin-bottom: 4px;
+}
+.store-button[aria-pressed="true"] {
+  background: var(--selected);
+  color: var(--accent);
+}
+.store-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.store-name svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.store-button small {
+  font-size: 11px;
+}
+.store-button progress {
+  width: 100%;
+  height: 4px;
+  accent-color: var(--accent);
+  border: 0;
+}
+.files-main {
+  overflow: hidden;
+}
+.store-details {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+  padding: 12px 8px 4px;
+}
+.store-details > summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.store-summary {
+  display: grid;
+  gap: 8px;
+}
+.store-summary > div {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+}
+.store-summary span {
+  overflow-wrap: anywhere;
+}
+.store-summary small {
+  font-size: 11px;
+}
+@media (min-width: 701px) {
+  .stores-sidebar {
+    position: sticky;
+    top: 74px;
+    max-height: calc(100dvh - 100px);
+    overflow: auto;
+  }
+}
+.directory-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.file-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 5px;
+  flex: none;
+  background: transparent;
+}
+.file-icon-button svg,
+.files-toolbar svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+#breadcrumbs {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+  overflow: auto;
+  white-space: nowrap;
+}
+#breadcrumbs button {
+  border: 0;
+  background: transparent;
+  min-height: 30px;
+  padding: 4px 6px;
+}
+#breadcrumbs button:last-child {
+  font-weight: 650;
+}
+.files-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+.file-actions {
+  display: flex;
+  gap: 6px;
+  margin-right: auto;
+}
+.file-actions button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+#file-search {
+  width: 200px;
+  min-width: 100px;
+}
+.files-toolbar .custom-select {
+  width: 130px;
+}
+.file-table-wrap {
+  overflow: auto;
+  min-height: 360px;
+  max-height: 65vh;
+}
+.file-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+.file-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--raised);
+  color: var(--muted);
+  font-weight: 500;
+}
+.file-table th,
+.file-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.file-table th button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  min-height: 24px;
+  color: inherit;
+}
+.file-table th:first-child {
+  min-width: 220px;
+}
+.file-table tbody tr:hover {
+  background: var(--raised);
+}
+.file-name {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 0;
+  min-height: 26px;
+  background: none;
+  border: 0;
+  text-align: left;
+  max-width: 440px;
+}
+.file-name span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-name svg {
+  width: 21px;
+  height: 21px;
+  color: var(--muted);
+  flex: none;
+}
+.file-name[data-kind="folder"] svg {
+  color: var(--warn);
+  fill: var(--warn-bg);
+}
+.file-name[data-kind="image"] svg {
+  color: var(--violet);
+}
+.file-name[data-kind="disk"] svg {
+  color: var(--cyan);
+}
+.file-operations {
+  text-align: right;
+}
+.file-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.file-menu {
+  position: relative;
+}
+.file-menu summary {
+  list-style: none;
+}
+.file-menu summary::-webkit-details-marker {
+  display: none;
+}
+.file-menu-items {
+  position: fixed;
+  inset: auto;
+  padding: 4px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  min-width: 150px;
+}
+.file-menu-items button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: none;
+  text-align: left;
+}
+.file-menu-items svg {
+  width: 16px;
+  height: 16px;
+}
+.file-menu-items .danger {
+  color: var(--critical);
+}
+.files-empty {
+  padding: 70px 20px;
+  text-align: center;
+  color: var(--muted);
+}
+.files-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+.files-footer > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.files-footer button {
+  min-height: 28px;
+  padding: 3px 7px;
+}
+#file-dialog {
+  width: min(560px, calc(100vw - 24px));
+}
+#operation-fields label {
+  display: grid;
+  gap: 5px;
+}
+#operation-fields input {
+  width: 100%;
+}
+.operation-plan {
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: var(--raised);
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+#operation-error {
+  color: var(--critical);
+}
+#preview-dialog {
+  width: min(1000px, calc(100vw - 32px));
+  padding: 0;
+  max-height: 90vh;
+}
+#preview-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+#preview-title {
+  overflow-wrap: anywhere;
+}
+#preview-content {
+  min-height: 260px;
+  max-height: 75vh;
+  overflow: auto;
+  padding: 16px;
+}
+#preview-content pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin: 0;
+  font: 12px/1.7 var(--mono);
+  tab-size: 4;
+}
+#preview-content img {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  margin: auto;
+  object-fit: contain;
+}
+#preview-content iframe {
+  width: 100%;
+  height: 65vh;
+  border: 0;
+}
+@media (max-width: 1000px) {
+  .files-workspace {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+  #file-search {
+    width: 160px;
+  }
+}
+@media (max-width: 700px) {
+  .files-shell {
+    padding: 20px 12px;
+  }
+  .files-workspace {
+    grid-template-columns: 1fr;
+  }
+  #store-list {
+    display: flex;
+    overflow: auto;
+    gap: 6px;
+  }
+  .store-button {
+    flex: 0 0 220px;
+    margin: 0;
+  }
+  .store-heading {
+    padding-bottom: 6px;
+  }
+  .store-summary {
+    padding: 12px;
+    gap: 10px 20px;
+  }
+  .file-actions {
+    flex-basis: 100%;
+  }
+  #file-search {
+    flex: 1;
+    width: 0;
+  }
+  .file-table-wrap {
+    min-height: 300px;
+  }
+}
+.file-kind-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--raised);
+  flex: none;
+}
+.file-kind-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+}
+.file-kind-switch button svg {
+  width: 14px;
+  height: 14px;
+}
+.file-kind-switch button[aria-pressed="true"] {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+}
+@media (max-width: 480px) {
+  .file-kind-switch {
+    margin-left: auto;
+  }
+}
