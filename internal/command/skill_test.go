@@ -10,9 +10,25 @@ import (
 	"testing"
 
 	skillassets "github.com/Necho-dev/govmc-cli/skills"
+	"gopkg.in/yaml.v3"
 )
 
 func TestEmbeddedSkillInstallIsSelfContained(t *testing.T) {
+	entry, err := skillassets.Skill.ReadFile(skillPath + "/SKILL.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	frontmatter := strings.SplitN(string(entry), "---", 3)
+	var identity struct{ Name, Description string }
+	if len(frontmatter) != 3 {
+		t.Fatal("Skill has no YAML frontmatter")
+	}
+	if err := yaml.Unmarshal([]byte(frontmatter[1]), &identity); err != nil {
+		t.Fatal(err)
+	}
+	if identity.Name != skillassets.SkillName || identity.Description == "" {
+		t.Fatal("Skill discovery identity disagrees with the installed directory")
+	}
 	home := t.TempDir()
 	t.Setenv("HOME", home)
 	t.Setenv("USERPROFILE", home)
@@ -67,8 +83,8 @@ func TestEmbeddedSkillInstallIsSelfContained(t *testing.T) {
 			}); err != nil {
 				t.Fatal(err)
 			}
-			if count < 5 {
-				t.Fatal("workflow reference files missing")
+			if count == 0 {
+				t.Fatal("Skill installation is empty")
 			}
 			local := filepath.Join(dest, "local-note.txt")
 			if err := os.WriteFile(local, []byte("keep until explicitly replaced"), 0600); err != nil {
@@ -89,7 +105,44 @@ func TestEmbeddedSkillInstallIsSelfContained(t *testing.T) {
 		})
 	}
 	output, err := run("skill", "show", "--json")
-	if err != nil || !strings.Contains(output, "clone_workflow.md") {
+	if err != nil || !strings.Contains(output, `"name":"govmc"`) || !strings.Contains(output, "clone_workflow.md") {
 		t.Fatal("skill show does not expose the maintained entrypoint")
+	}
+}
+
+// Validate the documented command paths and flags without executing any command
+// or opening a profile. This catches drift while preserving the safety of examples.
+func TestSkillCLIExamplesMatchCommands(t *testing.T) {
+	fences := regexp.MustCompile("(?s)```(?:sh|bash)\\n(.*?)\\n```")
+	err := fs.WalkDir(skillassets.Skill, skillPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".md") {
+			return err
+		}
+		body, err := skillassets.Skill.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		for _, block := range fences.FindAllSubmatch(body, -1) {
+			for _, line := range strings.Split(string(block[1]), "\n") {
+				fields := strings.Fields(strings.TrimSpace(line))
+				if len(fields) == 0 || fields[0] != "govmc" {
+					continue
+				}
+				root := New()
+				cmd, args, err := root.Find(fields[1:])
+				if err != nil {
+					t.Errorf("%s: %s: %v", path, line, err)
+					continue
+				}
+				if err := cmd.ParseFlags(args); err != nil {
+					t.Errorf("%s: %s: %v", path, line, err)
+					continue
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }

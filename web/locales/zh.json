@@ -652,7 +652,7 @@
   "text.show_application_preferences_and_effective_mcp_permissions": "查看应用偏好及 MCP 有效权限",
   "text.show_host_information": "查看主机信息",
   "text.show_mcp_permission_matrix_and_effective_profile_mode": "查看 MCP 权限矩阵及环境有效权限",
-  "text.show_or_install_the_esxi_govc_skill": "查看或安装 esxi-govc Skill",
+  "text.show_or_install_the_govmc_skill": "查看或安装 govmc Skill",
   "text.show_or_set_mcp_permissions_readonly_readwrite": "查看或设置 MCP 权限（readonly、readwrite）",
   "text.show_or_set_the_language_en_zh_auto": "查看或设置语言（en、zh、auto）",
   "text.show_queryperf_samples": "查看 QueryPerf 采样",

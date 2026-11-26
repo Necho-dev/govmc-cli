@@ -27,7 +27,7 @@ func clientFolder(client string) (string, error) {
 }
 
 func (o *options) skill() *cobra.Command {
-	root := group("skill", "Show or install the esxi-govc Skill")
+	root := group("skill", "Show or install the govmc Skill")
 	root.AddCommand(&cobra.Command{Use: "show", Args: cobra.NoArgs, RunE: func(cmd *cobra.Command, _ []string) error {
 		data, err := skillassets.Skill.ReadFile(skillPath + "/SKILL.md")
 		if err != nil {
@@ -63,7 +63,7 @@ func (o *options) skill() *cobra.Command {
 		if exists && !force {
 			return fmt.Errorf(o.language.Text("%s already exists; use --force to replace it"), dest)
 		}
-		stage, err := os.MkdirTemp(parent, ".esxi-govc-")
+		stage, err := os.MkdirTemp(parent, ".govmc-")
 		if err != nil {
 			return err
 		}
@@ -89,7 +89,7 @@ func (o *options) skill() *cobra.Command {
 			return err
 		}
 		if exists {
-			backup, err := os.MkdirTemp(parent, ".esxi-govc-backup-")
+			backup, err := os.MkdirTemp(parent, ".govmc-backup-")
 			if err != nil {
 				return err
 			}

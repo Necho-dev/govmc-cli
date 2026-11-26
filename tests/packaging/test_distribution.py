@@ -63,7 +63,12 @@ class DistributionTest(unittest.TestCase):
    run(launcher,'wmks','verify')
    run(native,'profiles','add','fixture','--url','https://127.0.0.1:1/sdk','--username','fixture','--password-stdin',input='temporary-fixture\n')
    for binary in [native,launcher]:
-    run(binary,'skill','install','--client','codex','--force');self.assertTrue((home/'.agents/skills/esxi-govc/references/web_console.md').is_file());self.assertIn('esxi-govc',run(binary,'skill','show'));self.assertIn('protocolVersion',run(binary,'mcp','serve',input='{"jsonrpc":"2.0","id":1,"method":"initialize"}\n'))
+    run(binary,'skill','install','--client','codex','--force')
+    skill=home/'.agents/skills/govmc'
+    for resource in ('agents/openai.yaml','references/setup.md','references/tasks.md','references/datastores.md','references/clone_workflow.md','references/remote_control.md','references/web_console.md'):
+     self.assertTrue((skill/resource).is_file(),resource)
+    entry=json.loads(run(binary,'skill','show','--json'));self.assertEqual(entry['name'],'govmc');self.assertEqual((skill/'SKILL.md').read_text(encoding='utf-8'),entry['content'])
+    self.assertIn('protocolVersion',run(binary,'mcp','serve',input='{"jsonrpc":"2.0","id":1,"method":"initialize"}\n'))
    if os.environ.get('GOVMC_PACKAGE_SERVE_TEST')=='1':
     for binary in [native,launcher]:
      print('Full serve lifecycle:',binary,flush=True)

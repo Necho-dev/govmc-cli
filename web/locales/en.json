@@ -652,7 +652,7 @@
   "text.show_application_preferences_and_effective_mcp_permissions": "Show application preferences and effective MCP permissions",
   "text.show_host_information": "Show host information",
   "text.show_mcp_permission_matrix_and_effective_profile_mode": "Show MCP permission matrix and effective profile mode",
-  "text.show_or_install_the_esxi_govc_skill": "Show or install the esxi-govc Skill",
+  "text.show_or_install_the_govmc_skill": "Show or install the govmc Skill",
   "text.show_or_set_mcp_permissions_readonly_readwrite": "Show or set MCP permissions (readonly, readwrite)",
   "text.show_or_set_the_language_en_zh_auto": "Show or set the language (en, zh, auto)",
   "text.show_queryperf_samples": "Show QueryPerf samples",

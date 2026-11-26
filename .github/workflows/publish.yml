@@ -83,9 +83,13 @@ jobs:
           export HOME="$RUNNER_TEMP/govmc-home"
           export USERPROFILE="$HOME"
           govmc skill install --client codex
-          test -s "$HOME/.agents/skills/esxi-govc/SKILL.md"
-          test -s "$HOME/.agents/skills/esxi-govc/references/usage.md"
-          test -s "$HOME/.agents/skills/esxi-govc/references/clone_workflow.md"
+          test -s "$HOME/.agents/skills/govmc/SKILL.md"
+          test -s "$HOME/.agents/skills/govmc/agents/openai.yaml"
+          test -s "$HOME/.agents/skills/govmc/references/setup.md"
+          test -s "$HOME/.agents/skills/govmc/references/tasks.md"
+          test -s "$HOME/.agents/skills/govmc/references/datastores.md"
+          test -s "$HOME/.agents/skills/govmc/references/usage.md"
+          test -s "$HOME/.agents/skills/govmc/references/clone_workflow.md"
       - name: Verify SDK-free native and wheel parity
         if: matrix.smoke
         shell: bash

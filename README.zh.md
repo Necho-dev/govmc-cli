@@ -250,7 +250,7 @@ govmc --config /srv/govmc/config.yaml wmks verify --json
 govmc --config /srv/govmc/config.yaml --profile lab serve --listen 127.0.0.1:8765
 ```
 
-示例目录 `/srv/govmc` 需要运行 serve 的用户可读写，可改为合适的本机目录。PowerShell 同样使用 `--config` 参数。普通使用无需覆盖。不要手工向 YAML 填写密码或 SDK 内容。卸载只删除当前 SDK 摘要目录，旧更新缓存不会自动启用或清理。排障方法详见[内置 WMKS 参考](skills/esxi-govc/references/web_console.md)。
+示例目录 `/srv/govmc` 需要运行 serve 的用户可读写，可改为合适的本机目录。PowerShell 同样使用 `--config` 参数。普通使用无需覆盖。不要手工向 YAML 填写密码或 SDK 内容。卸载只删除当前 SDK 摘要目录，旧更新缓存不会自动启用或清理。排障方法详见[内置 WMKS 参考](skills/govmc/references/web_console.md)。
 
 
 ## 环境与凭据
@@ -288,7 +288,7 @@ Profile 具有稳定标识。通过 `profiles rename OLD NEW` 或 TUI 改名后�
 | 持久化任务 | `govmc tasks list`、`govmc tasks status TASK_ID`、`govmc tasks cancel TASK_ID` |
 | 运行日志／审计 | `govmc logs`、`govmc audits` |
 
-完整参数以各命令 `--help` 为准，`--json` 输出结构化结果。虚拟机配置支持 JSON 文件或 `--file -`，字段和在线变更限制见 [Skill 使用参考](skills/esxi-govc/references/usage.md)。
+完整参数以各命令 `--help` 为准，`--json` 输出结构化结果。虚拟机配置支持 JSON 文件或 `--file -`，字段和在线变更限制见 [虚拟机配置参考](skills/govmc/references/hot_expand.md)。
 
 ### 克隆与文件传输
 
@@ -305,13 +305,13 @@ govmc --profile lab tasks status TASK_ID --watch --timeout 10m
 
 母机必须关机且连接正常。默认继承支持的母机硬件配置及磁盘置备类型，生成新的虚拟机身份，克隆后保持关机。客户机主机名、固定 IP 和应用 ID 仍需另外定制。不支持的磁盘／快照／加密／vTPM 组合在预检时拒绝，不静默生成不完整副本。
 
-`datastore move` 与 `copy` 使用相同预览／确认流程。跨 datastore 操作限于同一 ESXi 环境，不提供跨主机／Profile 迁移。克隆、复制、移动会在 `data.db` 创建持久化任务，普通查询和 dry-run 不创建执行任务。四端使用同一配置目录时查询同一份任务库。取消是请求，不代表回滚；进程中断后不会自动重放流程。详见[内置克隆工作流](skills/esxi-govc/references/clone_workflow.md)。
+`datastore move` 与 `copy` 使用相同预览／确认流程。跨 datastore 操作限于同一 ESXi 环境，不提供跨主机／Profile 迁移。克隆、复制、移动会在 `data.db` 创建持久化任务，普通查询和 dry-run 不创建执行任务。四端使用同一配置目录时查询同一份任务库。取消是请求，不代表回滚；进程中断后不会自动重放流程。详见[内置克隆工作流](skills/govmc/references/clone_workflow.md)。
 
 ### 远程控制
 
 CLI 和 stdio MCP 自动获取 WebMKS 票据并直连 ESXi，无需先运行 `serve`。`vm console input` 支持受限的键盘、鼠标和等待动作，`--dry-run` 不发送输入。MCP 提供 `esxi_vm_console_input`、`esxi_vm_console_press_key`、`esxi_vm_console_type_text` 和 `esxi_vm_console_pointer`。
 
-输入不依赖 VMware Tools，但受客户机焦点和键盘布局影响。发送成功不等于客户机程序执行成功，需要重新截图验收。Web 提供交互键鼠控制台；TUI 当前提供截图，不提供交互控制台。GuestOperations 执行是另一个依赖 Tools 的 MCP/REST 能力。详见[远程控制](skills/esxi-govc/references/remote_control.md)。
+输入不依赖 VMware Tools，但受客户机焦点和键盘布局影响。发送成功不等于客户机程序执行成功，需要重新截图验收。Web 提供交互键鼠控制台；TUI 当前提供截图，不提供交互控制台。GuestOperations 执行是另一个依赖 Tools 的 MCP/REST 能力。详见[远程控制](skills/govmc/references/remote_control.md)。
 
 ## TUI
 
@@ -365,7 +365,9 @@ govmc config set --mcp-mode readonly
 
 写操作还需要 `confirm: true`，克隆／复制／移动预览在只读模式下可用。工具的单次 `profile` 参数优先于进程默认环境，不修改 `active`；`govmc --profile lab mcp serve` 只固定默认目标。本地任务／日志／审计查询不要求连接 ESXi。工具并非与所有 CLI 命令逐项等同，例如配置编辑目前由 CLI/TUI/Web 提供，没有通用 MCP 编辑工具。
 
-内置 `esxi-govc` Skill 可离线安装，兼容 CLI 和 stdio MCP，说明选择、预览、确认和验收流程；克隆核心由共用 Go 编排实现，并非只能依赖 Skill 脚本。CLI/MCP 操作流程见 [Skill](skills/esxi-govc/SKILL.md)。REST 契约通过 `GET /v1/openapi.yaml` 查询，源码见 [openapi.yaml](internal/httpserver/openapi.yaml)。
+内置 `govmc` Skill 可离线安装，兼容 CLI 和 stdio MCP。入口按需路由到环境、清单、任务／审计、存储、克隆、配置、远控、WMKS 与排障文档，仅加载当前任务需要的内容，说明选择、预览、确认和验收流程；克隆核心由共用 Go 编排实现，并非只能依赖 Skill 脚本。CLI/MCP 操作流程见 [Skill](skills/govmc/SKILL.md)。REST 契约通过 `GET /v1/openapi.yaml` 查询，源码见 [openapi.yaml](internal/httpserver/openapi.yaml)。
+
+安装目录分别为 `~/.agents/skills/govmc`（Codex）、`~/.cursor/skills/govmc`（Cursor）和 `~/.claude/skills/govmc`（Claude Code）。升级程序后执行 `govmc skill install --client CLIENT --force` 替换已安装版本，先保留需要的本地修改。旧版本以其他 Skill 名称安装的目录不会被自动删除。
 
 ## 日志、审计与语言
 

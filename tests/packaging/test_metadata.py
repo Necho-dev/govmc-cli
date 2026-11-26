@@ -39,7 +39,7 @@ class MetadataTest(unittest.TestCase):
             self.assertIn("https://raw.githubusercontent.com/Necho-dev/govmc-cli/v0.1.1/assets/screenshots/web/console.png", description)
             self.assertIn("https://github.com/Necho-dev/govmc-cli/blob/v0.1.1/README.zh.md", description)
             self.assertIn("https://github.com/Necho-dev/govmc-cli/blob/v0.1.1/LICENSE", description)
-            self.assertIn("https://github.com/Necho-dev/govmc-cli/blob/v0.1.1/skills/esxi-govc/SKILL.md", description)
+            self.assertIn("https://github.com/Necho-dev/govmc-cli/blob/v0.1.1/skills/govmc/SKILL.md", description)
             self.assertIn("https://go.dev/", description)
             self.assertNotIn('src="assets/', description)
             self.assertNotIn("](skills/", description)

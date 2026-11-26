@@ -251,7 +251,7 @@ govmc --config /srv/govmc/config.yaml wmks verify --json
 govmc --config /srv/govmc/config.yaml --profile lab serve --listen 127.0.0.1:8765
 ```
 
-The example directory `/srv/govmc` must be readable/writable by the serve user; choose a suitable local directory. PowerShell uses the same `--config` argument. Normal use needs no override. Do not copy passwords or SDK contents into YAML manually. Only the current SDK digest is removed by uninstall; older update caches are not automatically enabled or purged. See the [bundled WMKS reference](skills/esxi-govc/references/web_console.md) for troubleshooting.
+The example directory `/srv/govmc` must be readable/writable by the serve user; choose a suitable local directory. PowerShell uses the same `--config` argument. Normal use needs no override. Do not copy passwords or SDK contents into YAML manually. Only the current SDK digest is removed by uninstall; older update caches are not automatically enabled or purged. See the [bundled WMKS reference](skills/govmc/references/web_console.md) for troubleshooting.
 
 
 ## Profiles and credentials
@@ -289,7 +289,7 @@ Existing legacy `govmc/profiles.json` configurations can migrate on first use; m
 | Persistent tasks | `govmc tasks list`, `govmc tasks status TASK_ID`, `govmc tasks cancel TASK_ID` |
 | Runtime logs / audits | `govmc logs`, `govmc audits` |
 
-Use each command's `--help` for flags and `--json` for structured results. VM changes accept a JSON file or `--file -`; supported fields and online-change restrictions are described in the [Skill usage reference](skills/esxi-govc/references/usage.md).
+Use each command's `--help` for flags and `--json` for structured results. VM changes accept a JSON file or `--file -`; supported fields and online-change restrictions are described in the [VM configuration reference](skills/govmc/references/hot_expand.md).
 
 ### Cloning and file transfers
 
@@ -306,13 +306,13 @@ govmc --profile lab tasks status TASK_ID --watch --timeout 10m
 
 The clone source must be powered off and connected. By default, the clone inherits the supported source hardware configuration and disk provisioning type, receives a new VM identity, and stays powered off. Guest hostnames, static IPs, and application IDs still need separate customization. Unsupported disk/snapshot/encryption/vTPM arrangements fail preflight rather than silently producing an incomplete clone.
 
-`datastore move` follows the same preview/confirmation model as `copy`. Cross-datastore operations are within one ESXi environment; cross-host/profile migration is not provided. Clone/copy/move create durable tasks in `data.db`; ordinary reads and dry-runs do not create execution tasks. All four surfaces query that same local task store, provided they use the same configuration directory. Cancellation is a request, not rollback; interrupted workflows are not automatically replayed. See the [bundled clone workflow](skills/esxi-govc/references/clone_workflow.md).
+`datastore move` follows the same preview/confirmation model as `copy`. Cross-datastore operations are within one ESXi environment; cross-host/profile migration is not provided. Clone/copy/move create durable tasks in `data.db`; ordinary reads and dry-runs do not create execution tasks. All four surfaces query that same local task store, provided they use the same configuration directory. Cancellation is a request, not rollback; interrupted workflows are not automatically replayed. See the [bundled clone workflow](skills/govmc/references/clone_workflow.md).
 
 ### Remote control
 
 CLI and stdio MCP acquire a WebMKS ticket and connect directly to ESXi without requiring `serve`. `vm console input` supports bounded keyboard, pointer, and wait actions; `--dry-run` sends no input. MCP offers `esxi_vm_console_input`, `esxi_vm_console_press_key`, `esxi_vm_console_type_text`, and `esxi_vm_console_pointer`.
 
-Input does not require VMware Tools, but depends on guest focus and keyboard layout. A successful send is not proof of guest program completion: capture a fresh screenshot to verify the result. Web provides interactive keyboard/mouse consoles; TUI currently provides screenshots, not an interactive console. GuestOperations execution is a separate Tools-dependent MCP/REST capability. See [remote control](skills/esxi-govc/references/remote_control.md).
+Input does not require VMware Tools, but depends on guest focus and keyboard layout. A successful send is not proof of guest program completion: capture a fresh screenshot to verify the result. Web provides interactive keyboard/mouse consoles; TUI currently provides screenshots, not an interactive console. GuestOperations execution is a separate Tools-dependent MCP/REST capability. See [remote control](skills/govmc/references/remote_control.md).
 
 ## TUI
 
@@ -366,7 +366,9 @@ govmc config set --mcp-mode readonly
 
 Writes also require `confirm: true`. Clone/copy/move previews remain available in read-only mode. MCP tools accept a per-call `profile`, overriding the process default without changing `active`; `govmc --profile lab mcp serve` pins only the default. Local task/log/audit queries do not require an ESXi connection. Tool availability is not identical to every CLI command: for example, VM configuration editing is currently exposed through CLI/TUI/Web, not a general MCP edit tool.
 
-The bundled `esxi-govc` Skill installs offline and supports CLI and stdio MCP. It explains selection, preview, confirmation, and verification; cloning itself is a shared Go workflow, not a Skill-only script. See the [Skill](skills/esxi-govc/SKILL.md) for CLI/MCP workflows. The REST contract is available at `GET /v1/openapi.yaml` and in [openapi.yaml](internal/httpserver/openapi.yaml).
+The bundled `govmc` Skill installs offline and supports CLI and stdio MCP. Its entrypoint routes to task-specific references for setup, inventory, tasks/audits, datastores, cloning, VM configuration, remote control, WMKS and troubleshooting; load only the references needed for the current request. It explains selection, preview, confirmation, and verification; cloning itself is a shared Go workflow, not a Skill-only script. See the [Skill](skills/govmc/SKILL.md) for CLI/MCP workflows. The REST contract is available at `GET /v1/openapi.yaml` and in [openapi.yaml](internal/httpserver/openapi.yaml).
+
+Install to `~/.agents/skills/govmc` (Codex), `~/.cursor/skills/govmc` (Cursor), or `~/.claude/skills/govmc` (Claude Code). After upgrading the executable, use `govmc skill install --client CLIENT --force` to replace an existing installation, preserving any local changes first. Older installations under a different Skill name are not removed automatically.
 
 ## Logs, audits, and language
 

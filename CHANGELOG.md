@@ -8,6 +8,10 @@ Versions follow [SemVer](https://semver.org/). English and Chinese entries share
 
 ## [0.1.1]
 
+### Changed
+
+- Unify the embedded Skill name, installation paths, UI metadata and documentation as `govmc`; route detailed setup, task, datastore and clone procedures through on-demand references.
+
 ### Fixed
 
 - Python wheels include the complete README as the PyPI description, with release-pinned image and documentation URLs.

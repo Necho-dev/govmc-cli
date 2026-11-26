@@ -1,0 +1,4 @@
+interface:
+  display_name: "govmc"
+  short_description: "Manage ESXi using govmc CLI or stdio MCP"
+  default_prompt: "使用 $govmc 检查选定 ESXi 环境，并按需规划和验收操作。"
