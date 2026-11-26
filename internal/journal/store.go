@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"path/filepath"
 	"sort"
@@ -180,7 +179,10 @@ func Open(configPath, source string) (*Store, error) {
 	if err := PrepareDatabase(dbPath); err != nil {
 		return nil, err
 	}
-	u := url.URL{Scheme: "file", Path: dbPath}
+	u, err := DatabaseURL(dbPath)
+	if err != nil {
+		return nil, err
+	}
 	q := u.Query()
 	q.Add("_pragma", "busy_timeout(3000)")
 	q.Add("_pragma", "foreign_keys(1)")

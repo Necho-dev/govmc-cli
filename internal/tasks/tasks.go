@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -153,7 +152,10 @@ func Open(path, source string) (*Manager, error) {
 	if err := journal.PrepareDatabase(path); err != nil {
 		return nil, err
 	}
-	u := url.URL{Scheme: "file", Path: path}
+	u, err := journal.DatabaseURL(path)
+	if err != nil {
+		return nil, err
+	}
 	q := u.Query()
 	q.Add("_pragma", "busy_timeout(5000)")
 	// Reserve the writer before checking active resource locks. A deferred WAL
