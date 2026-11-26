@@ -8,6 +8,8 @@ import hashlib
 import io
 import os
 from pathlib import Path
+import re
+from urllib.parse import urlsplit
 import tempfile
 import zipfile
 
@@ -39,6 +41,25 @@ def write_archive(path: Path, files: dict[str, Member]) -> None:
             archive.writestr(entry, member.data, compress_type=zipfile.ZIP_DEFLATED)
 
 
+def readme_description(version: str) -> str:
+    """Use the project README, with release-pinned links that work on PyPI."""
+    repository = "https://github.com/Necho-dev/govmc-cli"
+
+    def absolute(target: str, image: bool = False) -> str:
+        if not target or target.startswith(("#", "/")) or urlsplit(target).scheme:
+            return target
+        path = target.removeprefix("./")
+        if image:
+            return f"https://raw.githubusercontent.com/Necho-dev/govmc-cli/v{version}/{path}"
+        return f"{repository}/blob/v{version}/{path}"
+
+    text = (ROOT / "README.md").read_text(encoding="utf-8")
+    text = re.sub(r'(!?\[[^\]\n]*\]\()([^\s)]+)(\))',
+                  lambda m: m[1] + absolute(m[2], m[1].startswith("!")) + m[3], text)
+    return re.sub(r'(\b(src|href)=["\'])([^"\']+)(["\'])',
+                  lambda m: m[1] + absolute(m[3], m[2] == "src") + m[4], text)
+
+
 def write_wheel(out: Path, name: str, version: str, tag: str, files: dict[str, Member],
                 dependencies: str = "", entry_points: str = "") -> None:
     stem = f"{name.replace('-', '_')}-{version}"
@@ -46,13 +67,7 @@ def write_wheel(out: Path, name: str, version: str, tag: str, files: dict[str, M
     description = ("Go CLI, TUI, MCP and local VMware management workbench"
                    if name == "govmc-cli" else "Optional WebMKS resources for govmc")
     if name == "govmc-cli":
-        long_description = (
-            "# GoVMC\n\nGo CLI, TUI, stdio MCP and SDK-free Web for VMware ESXi, with an embedded offline Skill.\n\n"
-            "Install with `pip install govmc-cli`. Start with `govmc --help`, "
-            "`govmc tui`, `govmc mcp json --client codex` or `govmc skill show`.\n\n"
-            "The platform wheel includes a Go executable and a small Python launcher; "
-            "no Go compiler is needed at installation time. MCP permissions default to readonly.\n"
-        )
+        long_description = readme_description(version)
     else:
         long_description = (
             "# GoVMC Web resources\n\nOptional WebMKS resources for `govmc-cli[web]`. "

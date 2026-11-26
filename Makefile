@@ -1,6 +1,6 @@
 .PHONY: govmc build install release wheel test check web-smoke
 
-VERSION ?= 0.1.0
+VERSION ?= 0.1.1
 PWCLI ?= npx --yes --package @playwright/cli playwright-cli
 LDFLAGS = -s -w -X github.com/Necho-dev/govmc-cli.Version=$(VERSION)
 

@@ -19,4 +19,4 @@ const WordmarkCompact = ` __            _ _   __
 \__/ (_)   V  |   | \__`
 
 // Version is set by release builds.
-var Version = "0.1.0"
+var Version = "0.1.1"

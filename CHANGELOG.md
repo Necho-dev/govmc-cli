@@ -6,6 +6,17 @@ Versions follow [SemVer](https://semver.org/). English and Chinese entries share
 
 ## [Unreleased]
 
+## [0.1.1]
+
+### Fixed
+
+- Python wheels include the complete README as the PyPI description, with release-pinned image and documentation URLs.
+
+### Validation
+
+- Distribution regression tests accept an already published wheel, verifying its embedded executable, installation, CLI/MCP/Skill behavior and WMKS lifecycle against the native release.
+- Stabilize TUI scroll-and-return regression coverage by waiting for the final row without a backlog of key events.
+
 ## [0.1.0]
 
 ### Initial release

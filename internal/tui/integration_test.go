@@ -202,8 +202,10 @@ func TestTUISimulatorPagesAndEnvironment(t *testing.T) {
 	var list *tview.Table
 	var beforeRow, beforeCol, beforeOffsetRow, beforeOffsetCol int
 	app.QueueUpdateDraw(func() { list = app.GetFocus().(*tview.Table) })
-	for i := 0; i < 40; i++ {
-		screen.PostEventWait(tcell.NewEventKey(tcell.KeyDown, 0, tcell.ModNone))
+	// PageDown reaches the final row without a long queue of Down events.
+	// Unlike End, it also preserves the row-only table's selected column.
+	for i := 0; i < 2; i++ {
+		screen.PostEventWait(tcell.NewEventKey(tcell.KeyPgDn, 0, tcell.ModNone))
 	}
 	deadline := time.Now().Add(5 * time.Second)
 	for time.Now().Before(deadline) {
@@ -216,6 +218,9 @@ func TestTUISimulatorPagesAndEnvironment(t *testing.T) {
 	}
 	app.QueueUpdateDraw(func() {
 		beforeRow, beforeCol = list.GetSelection()
+		if beforeRow != list.GetRowCount()-1 {
+			t.Errorf("scroll did not reach the final row before snapshot: %d", beforeRow)
+		}
 		beforeOffsetRow, beforeOffsetCol = list.GetOffset()
 		if beforeOffsetRow == 0 {
 			t.Error("test did not exercise a scrolled list")

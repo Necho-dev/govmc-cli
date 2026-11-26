@@ -315,7 +315,7 @@ CLI 和 stdio MCP 自动获取 WebMKS 票据并直连 ESXi，无需先运行 `se
 
 ## TUI
 
-底栏对齐 OpenWrt CLI：`V0.1.0` 与 GitHub 链接，点击图标或按 `G` 打开项目。GitHub 字形使用 Nerd Font 显示。
+底栏对齐 OpenWrt CLI：`V0.1.1` 与 GitHub 链接，点击图标或按 `G` 打开项目。GitHub 字形使用 Nerd Font 显示。
 
 ```sh
 govmc --profile lab --language zh tui
@@ -413,9 +413,9 @@ GOVMC_TUI_SIM_TEST=1 GOVMC_WEB_SIM_TEST=1 GOVMC_SERVE_BINARY="$PWD/bin/govmc" go
 go test -tags webassets ./...
 make web-smoke
 
-# 在本地构建首版：
-make release VERSION=0.1.0
-make wheel VERSION=0.1.0
+# 在本地构建当前开发版本：
+make release VERSION=0.1.1
+make wheel VERSION=0.1.1
 ```
 
 依赖二进制的集成测试前先构建当前代码。Web smoke 通过 `npx` 使用 Chrome 和 `@playwright/cli`，覆盖工作台、存储、设置、主题、任务抽屉和缓存，使用固定测试数据，不替代真实 ESXi 验收。
@@ -424,7 +424,7 @@ make wheel VERSION=0.1.0
 
 首次发布前，先到 [GitHub Settings → Environments](https://github.com/Necho-dev/govmc-cli/settings/environments) 创建名称严格为 `pypi` 的环境，再在 PyPI 配置对应仓库、工作流 `publish.yml`、environment `pypi` 的 Trusted Publisher（[官方说明](https://docs.pypi.org/trusted-publishers/using-a-publisher/)），若编辑器提示 `Value 'pypi' is not valid`，检查新仓库是否已有此环境，再刷新／重载 GitHub Actions 扩展；`pypi` 本身是合法的工作流环境名。无需配置 PyPI API Token。制品不携带 VMware WMKS。Linux arm64、macOS amd64 使用交叉编译；Linux amd64、macOS arm64、Windows amd64 在对应 runner 上验证原生程序与 wheel 的运行及安装流程。
 
-复用原生制品可运行 `python3 build/wheel.py --version VERSION --binary dist/govmc`（Windows 使用 `dist/govmc.exe`），版本与平台应保持一致。构建辅助脚本只使用 Python 标准库，产品本身仍是 Go 可执行程序。
+复用原生制品可运行 `python3 build/wheel.py --version VERSION --binary dist/govmc`（Windows 使用 `dist/govmc.exe`），版本与平台应保持一致。构建辅助脚本只使用 Python 标准库，产品本身仍是 Go 可执行程序。wheel 使用完整英文 README 作为 PyPI 项目介绍，其中图片和文档的相对链接会转换为指向对应发行标签的完整地址。
 
 ## 鸣谢
 

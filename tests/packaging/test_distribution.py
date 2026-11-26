@@ -30,8 +30,12 @@ class DistributionTest(unittest.TestCase):
   version=subprocess.check_output([str(native),'--version'],text=True,encoding="utf-8").strip().split()[-1]
   with tempfile.TemporaryDirectory(prefix='govmc-cli-distribution-') as d:
    work=Path(d);wheels=work/'wheels'
-   subprocess.run([sys.executable,str(ROOT/'build/wheel.py'),'--version',version,'--binary',str(native),'--out',str(wheels)],check=True,cwd=work)
-   wheel=next(wheels.glob('*.whl'))
+   published=os.environ.get('GOVMC_PACKAGED_WHEEL')
+   if published:
+    wheel=Path(published).resolve()
+   else:
+    subprocess.run([sys.executable,str(ROOT/'build/wheel.py'),'--version',version,'--binary',str(native),'--out',str(wheels)],check=True,cwd=work)
+    wheel=next(wheels.glob('*.whl'))
    with zipfile.ZipFile(wheel) as z:
     self.assertEqual(z.read('govmc_cli/'+native.name),native.read_bytes())
     metadata=z.read(next(n for n in z.namelist() if n.endswith('/METADATA'))).decode();self.assertIn('Name: govmc-cli\n',metadata);self.assertNotIn('Requires-Dist: govmc-cli-web',metadata);self.assertIn('govmc = govmc_cli.launcher:main',z.read(next(n for n in z.namelist() if n.endswith('/entry_points.txt'))).decode())

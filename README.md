@@ -316,7 +316,7 @@ Input does not require VMware Tools, but depends on guest focus and keyboard lay
 
 ## TUI
 
-The footer follows OpenWrt CLI: `V0.1.0` and a GitHub link. Click the icon or press `G` to open the project. Use a Nerd Font for the GitHub glyph.
+The footer follows OpenWrt CLI: `V0.1.1` and a GitHub link. Click the icon or press `G` to open the project. Use a Nerd Font for the GitHub glyph.
 
 ```sh
 govmc --profile lab --language zh tui
@@ -414,9 +414,9 @@ GOVMC_TUI_SIM_TEST=1 GOVMC_WEB_SIM_TEST=1 GOVMC_SERVE_BINARY="$PWD/bin/govmc" go
 go test -tags webassets ./...
 make web-smoke
 
-# Build the first release locally:
-make release VERSION=0.1.0
-make wheel VERSION=0.1.0
+# Build the current development version locally:
+make release VERSION=0.1.1
+make wheel VERSION=0.1.1
 ```
 
 Build the current binary before binary-backed integration tests. Web smoke tests use Chrome and `@playwright/cli` through `npx`. They cover the workspace, storage, settings, themes, task drawer, and cache with fixtures; they do not replace real ESXi acceptance.
@@ -425,7 +425,7 @@ Releases follow the same tag-driven flow as openwrt-cli. Pushing `vX.Y.Z` or `vX
 
 Before the first release, create an environment named exactly `pypi` in [GitHub Settings → Environments](https://github.com/Necho-dev/govmc-cli/settings/environments), then configure a PyPI Trusted Publisher for your repository, workflow `publish.yml`, environment `pypi` ([official setup](https://docs.pypi.org/trusted-publishers/using-a-publisher/)). If the editor reports `Value 'pypi' is not valid`, check that this environment exists in the new repository, then refresh/reload the GitHub Actions extension; the literal environment name is valid workflow syntax. No PyPI API token is needed. The workflow does not bundle VMware WMKS. Linux arm64 and macOS amd64 artifacts are cross-built; executable/wheel lifecycle smoke checks run on Linux amd64, macOS arm64 and Windows amd64 runners.
 
-To reuse an existing native release, run `python3 build/wheel.py --version VERSION --binary dist/govmc` (Windows: `dist/govmc.exe`); its version and target must match the wheel. Packaging helpers use the Python standard library, while the product remains a Go executable.
+To reuse an existing native release, run `python3 build/wheel.py --version VERSION --binary dist/govmc` (Windows: `dist/govmc.exe`); its version and target must match the wheel. Packaging helpers use the Python standard library, while the product remains a Go executable. Wheels include this complete README as their PyPI description; relative image and documentation links are converted to URLs pinned to the matching release tag.
 
 ## License and open-source boundary
 
